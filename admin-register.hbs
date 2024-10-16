@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register Admin</title>
+    <link href="/common/style.css" rel="stylesheet" />
+</head>
+<body>
+    <h1>Register New Admin</h1>
+    {{#if error}}
+        <p style="color: red;">{{error}}</p>
+    {{/if}}
+     <form action="/admin/register" method="POST">
+        <label for="email">Email:</label>
+        <input type="email" name="email" required>
+        <br>
+        <label for="username">Username:</label>
+        <input type="text" name="username" required>
+        <br>
+        <label for="password">Password:</label>
+        <input type="password" name="password" required>
+        <br>
+        <button type="submit">Register</button>
+    </form>
+    <p>Already have an account? <a href="/">Login here</a></p> <!-- Link back to login -->
+</body>
+</html>
