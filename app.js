@@ -2,7 +2,6 @@
 // npm init -y
 // npm i express express-handlebars body-parser mongodb
 // npm install express-session
-//
 
 // Run command:
 // node app.js
@@ -206,21 +205,26 @@ server.get('/admin-bookings', async (req, res) => {
     }
 });
 
-// Room Details Route
-server.get('/admin-room-details/:roomId', async (req, res) => {
-    if (!req.session.isAuthenticated) { // Check for isAuthenticated
+// Route to display all room details
+server.get('/admin-room-details', async (req, res) => {
+    if (!req.session.isAuthenticated) {
         return res.redirect('/'); // Redirect to login if not authenticated
     }
-
-    const roomId = req.params.roomId;
 
     try {
         await mongoClient.connect();
         const db = mongoClient.db(databaseName);
         const collection = db.collection(roomCollection);
 
-        const room = await collection.findOne({ _id: new ObjectId(roomId) });
-        res.render('admin-room-details', { layout: 'index', title: 'Room Details', room, username: req.session.username });
+        // Fetch all rooms
+        const rooms = await collection.find({}).toArray(); // Get all room details
+
+        res.render('admin-room-details', {
+            layout: 'index',
+            title: 'Room Details',
+            rooms, // Pass rooms to the template
+            username: req.session.username,
+        });
 
     } catch (error) {
         console.error('Error fetching room details:', error);
@@ -229,6 +233,7 @@ server.get('/admin-room-details/:roomId', async (req, res) => {
         await mongoClient.close(); // Ensure the connection is closed
     }
 });
+
 
 // Payments Route
 server.get('/admin-payments', (req, res) => {
