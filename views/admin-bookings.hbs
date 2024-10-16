@@ -1,0 +1,50 @@
+{{!-- Layout and Title --}}
+{{!< layout index}}
+<h1>{{title}}</h1>
+
+{{!-- Booking Filter Form --}}
+<form method="GET" action="/admin-bookings">
+    <label for="startDate">Start Date:</label>
+    <input type="date" name="startDate" required>
+
+    <label for="endDate">End Date:</label>
+    <input type="date" name="endDate" required>
+
+    <button type="submit">Filter</button>
+</form>
+
+{{!-- Booking List --}}
+{{#if bookings.length}}
+    <table>
+        <thead>
+            <tr>
+                <th>Booking ID</th>
+                <th>Guest ID</th>
+                <th>Adult Pax</th>
+                <th>Kid Pax</th>
+                <th>Room Type</th>
+                <th>Check In</th>
+                <th>Check Out</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each bookings}}
+                <tr>
+                    <td>{{this._id}}</td>
+                    <td>{{this.guestID}}</td>
+                    <td>{{this.adultPax}}</td>
+                    <td>{{this.kidPax}}</td>
+                    <td>{{this.roomType}}</td>
+                    <td>{{this.checkIn}}</td>
+                    <td>{{this.checkOut}}</td>
+                    <td>
+                        <a href="/admin-booking-details/{{this._id}}">View Details</a>
+                    </td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+{{else}}
+    <p>No bookings found for the selected date range.</p>
+{{/if}}

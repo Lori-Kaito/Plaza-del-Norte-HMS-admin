@@ -1,0 +1,15 @@
+{{!< layout index}}
+<h1>Booking Details</h1>
+
+{{#if booking}}
+    <h2>Booking ID: {{booking._id}}</h2>
+    <p><strong>Guest ID:</strong> {{booking.guestID}}</p>
+    <p><strong>Adult Pax:</strong> {{booking.adultPax}}</p>
+    <p><strong>Kid Pax:</strong> {{booking.kidPax}}</p>
+    <p><strong>Room Type:</strong> {{booking.roomType}}</p>
+    <p><strong>Check In:</strong> {{booking.checkIn}}</p>
+    <p><strong>Check Out:</strong> {{booking.checkOut}}</p>
+    <p><strong>Special Requests:</strong> {{booking.specialRequests}}</p>
+{{else}}
+    <p>No booking details found.</p>
+{{/if}}
