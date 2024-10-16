@@ -1,5 +1,8 @@
 # Plaza-del-Norte-HMS-admin
 
+Username: admin1
+Password: 1234
+
 Install Command: npm init -y  
 
 npm i express express-handlebars body-parser mongodb 
