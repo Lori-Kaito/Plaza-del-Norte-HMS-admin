@@ -1,6 +1,7 @@
 # Plaza-del-Norte-HMS-admin
 
-Username: admin1
+Username: admin
+
 Password: 1234
 
 Install Command: npm init -y  
