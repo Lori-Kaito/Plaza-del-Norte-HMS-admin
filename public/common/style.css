@@ -20,6 +20,26 @@
 }
 
 
+/* 
+-----------------------
+-- HEADER STYLES --
+-----------------------
+*/
+ 
+
+.header-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;     
+    justify-content: center; 
+}
+
+.header-container img {
+    width: 12%;
+    margin: 10px;
+}
+
+
 /*
 -----------------------
 -- NAVIGATION STYLES --
@@ -104,11 +124,6 @@ nav svg {
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.logo {
-    width: 12%;
-    margin: 10px;
-}
-
 .form-tab * {
     background-color: white;
     text-align: center;
@@ -146,8 +161,9 @@ nav svg {
     margin-bottom: 15px;
 }
 
-.form-tab p, a {
+.form-tab p, .form-tab a {
     color: rgba(34, 34, 34, 0.6);
+    font-size: smaller;
 }
 
 /* 
@@ -176,4 +192,78 @@ nav svg {
 
 .form-tab svg {
     vertical-align: middle;
+}
+
+/* 
+-----------------------
+-- PAYMENT PAGE STYLES --
+-----------------------
+*/
+
+.payment-page h1 {
+    text-transform: uppercase;
+}
+
+.payment-page table {
+    width: 95%;
+    margin: 20px auto;
+    border-collapse: separate;
+    border-spacing: 0;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    border-radius: 5px; 
+    overflow: hidden; 
+  }
+  
+.payment-page thead th {
+    background-color: #FEFEFE;
+    color: #333; 
+    padding: 30px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1em;
+}
+
+.payment-page tbody td {
+    padding: 20px; 
+    border-bottom: 1px solid #ddd;
+}
+
+.payment-page tbody tr:nth-child(odd) td {
+    background-color: #e8e8e8;
+}
+
+.payment-page thead th, tbody td {
+    text-align: center;
+}
+
+.payment-page tbody tr:nth-child(even) td {
+    background-color: #FEFEFE;
+}
+
+.payment-header {
+    display: flex;
+    justify-content: space-between;
+    padding-right: 70px;
+    padding-top: 20px;
+}
+
+.payment-header #paymentStatus {
+    border: none;
+    background-color:  #FEFEFE;
+    border-radius: 5px;
+    padding-top: 5px;
+    text-align: center;
+    padding-bottom: 5px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.payment-header button {
+    border: none;
+    background-color: #FEFEFE;
+    border-radius: 5px;
+    padding: 5px;
+    width: 100%;
+    margin-top: 6px;
+    text-align: center;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
 }
