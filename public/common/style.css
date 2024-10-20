@@ -245,6 +245,7 @@ nav svg {
     justify-content: space-between;
     padding-right: 70px;
     padding-top: 20px;
+    align-items: center;
 }
 
 .payment-header #paymentStatus {
