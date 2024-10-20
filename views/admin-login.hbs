@@ -5,26 +5,30 @@
     <link href="/common/style.css" rel="stylesheet" />
 </head>
 <body>
-    <h1>Plaza del Norte</h1>
-    <h1>{{title}}</h1>
+<div class="center">
+        <img src="/images/logo.png" class="logo">
 
-    {{#if error}}
-        <p style="color: red;">{{error}}</p>
-    {{/if}}
+        <div class="form-tab">
+        <h1>{{title}}</h1>
+        {{#if error}}
+            <p style="color: red;">{{error}}</p>
+        {{/if}}
 
-    <form action="/admin-login" method="POST">
-        <label for="username">Username:</label>
-        <input type="text" name="username" required>
-        <br>
-        <label for="password">Password:</label>
-        <input type="password" name="password" required>
-        <br>
-        <button type="submit">Login</button>
-    </form>
+                <form action="/admin-login" method="POST">
 
-    <!-- Forgot Password link added below the form -->
-    <p><a href="/admin/forgot-password">Forgot Password?</a></p>
+                    <input type="text" name="username" required placeholder="Username">
+                    <br>
+                    <input type="password" name="password" required placeholder="Password">
 
-    <p>No admin account yet? <a href="/admin/register">Register here</a></p> <!-- Registration link -->
+                    <br>
+                    <button type="submit">Login</button>
+                </form>
+
+                <!-- Forgot Password link added below the form -->
+                <p><a href="/admin/forgot-password">Forgot Password?</a></p>
+
+                <p>No admin account yet? <a href="/admin/register">Register here</a></p> <!-- Registration link -->
+        </div>
+    </div>
 </body>
 </html>
