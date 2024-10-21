@@ -322,7 +322,7 @@ server.get('/admin-room-details', async (req, res) => {
     }
 });
 
-
+// Route to Payments
 server.get('/admin-payments', async (req, res) => {
     if (!req.session.isAuthenticated) { // Check for isAuthenticated
         return res.redirect('/'); // Redirect to login if not authenticated
