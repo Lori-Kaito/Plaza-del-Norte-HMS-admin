@@ -2,6 +2,7 @@
 // npm init -y
 // npm i express express-handlebars body-parser mongodb
 // npm install express-session
+// npm install bcrypt
 
 // Run command:
 // node app.js
@@ -11,6 +12,8 @@ const server = express();
 const bodyParser = require('body-parser');
 const handlebars = require('express-handlebars');
 const session = require('express-session');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 const { MongoClient, ObjectId, ServerApiVersion } = require('mongodb');
 
 // Middleware setup
@@ -73,13 +76,20 @@ server.post('/admin-login', async (req, res) => {
         const db = mongoClient.db(databaseName);
         const collection = db.collection(adminCollection);
 
-        const admin = await collection.findOne({ username: username, password: password });
+        const admin = await collection.findOne({ username: username });
 
         if (admin) {
-            req.session.isAuthenticated = true; // Set session variable for authentication
-            req.session.username = username; // Store the username
-            console.log('Login successful:', username); // Log success
-            res.redirect('/admin-dashboard'); // Redirect to dashboard
+            // Compare the hashed password in the database with the plain text password entered by the user
+            const isMatch = await bcrypt.compare(password, admin.password);
+            if (isMatch) {
+                req.session.isAuthenticated = true; // Set session variable for authentication
+                req.session.username = username; // Store the username
+                console.log('Login successful:', username); // Log success
+                res.redirect('/admin-dashboard'); // Redirect to dashboard
+            } else {
+                console.log('Invalid credentials'); // Log invalid login
+                res.render('admin-login', { layout: 'index', title: 'Admin Login', error: 'Invalid credentials' });
+            }
         } else {
             console.log('Invalid credentials'); // Log invalid login
             res.render('admin-login', { layout: 'index', title: 'Admin Login', error: 'Invalid credentials' });
@@ -114,10 +124,13 @@ server.post('/admin/register', async (req, res) => {
             return;
         }
 
+        // Hash the password before saving it to the database
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
         const newAdmin = {
             email: email,
             username: username,
-            password: password, // Store hashed passwords in production
+            password: hashedPassword, // Store the hashed password
         };
 
         await collection.insertOne(newAdmin);
