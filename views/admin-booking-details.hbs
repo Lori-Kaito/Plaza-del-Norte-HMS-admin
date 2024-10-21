@@ -3,6 +3,11 @@
 
 {{#if booking}}
     <h2>Booking ID: {{booking._id}}</h2>
+     {{#if guest}}
+        <p><strong>Guest Name:</strong> {{guest.firstName}} {{guest.lastName}}</p>
+    {{else}}
+        <p><strong>Guest:</strong> Guest details not found</p>
+    {{/if}}
     <p><strong>Guest ID:</strong> {{booking.guestID}}</p>
     <p><strong>Adult Pax:</strong> {{booking.adultPax}}</p>
     <p><strong>Kid Pax:</strong> {{booking.kidPax}}</p>

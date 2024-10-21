@@ -205,6 +205,81 @@ server.get('/admin-bookings', async (req, res) => {
     }
 });
 
+// Bookings Route
+server.get('/admin-bookings', async (req, res) => {
+    if (!req.session.isAuthenticated) {
+        return res.redirect('/');
+    }
+
+    const { startDate, endDate } = req.query;
+
+    try {
+        await mongoClient.connect();
+        const db = mongoClient.db(databaseName);
+        const collection = db.collection(reservationCollection);
+
+        const query = {};
+
+        if (startDate) {
+            query.checkIn = { $gte: new Date(startDate) };
+        }
+        if (endDate) {
+            query.checkOut = { $lte: new Date(endDate) };
+        }
+
+        const bookings = await collection.find(query).toArray();
+        res.render('admin-bookings', { layout: 'index', title: 'Bookings', bookings, username: req.session.username });
+
+    } catch (error) {
+        console.error('Error fetching bookings:', error);
+        res.status(500).send('Error fetching bookings');
+    } finally {
+        await mongoClient.close();
+    }
+});
+
+// Booking Details Route
+server.get('/admin-booking-details/:id', async (req, res) => {
+    if (!req.session.isAuthenticated) { // Check if admin is authenticated
+        return res.redirect('/'); // Redirect to login if not authenticated
+    }
+
+    const bookingId = req.params.id;
+
+    try {
+        await mongoClient.connect();
+        const db = mongoClient.db(databaseName);
+        const reservationCollection = db.collection('reservationCollection');
+        const guestsCollection = db.collection('guestsCollection'); // Collection for guest information
+
+        // Fetch the booking by its ID
+        const booking = await reservationCollection.findOne({ _id: new ObjectId(bookingId) });
+
+        if (booking) {
+            // Fetch the guest's details based on the guestID from the booking
+            const guest = await guestsCollection.findOne({ _id: new ObjectId(booking.guestID) });
+
+            // Pass both booking and guest details to the template
+            res.render('admin-booking-details', {
+                layout: 'index',
+                title: 'Booking Details',
+                booking, // Pass booking details
+                guest, // Pass guest details
+                username: req.session.username
+            });
+        } else {
+            // If no booking is found
+            res.status(404).send('Booking not found');
+        }
+
+    } catch (error) {
+        console.error('Error fetching booking details:', error);
+        res.status(500).send('Error fetching booking details');
+    } finally {
+        await mongoClient.close(); // Ensure the connection is closed
+    }
+});
+
 // Route to display all room details
 server.get('/admin-room-details', async (req, res) => {
     if (!req.session.isAuthenticated) {
@@ -235,12 +310,37 @@ server.get('/admin-room-details', async (req, res) => {
 });
 
 
-// Payments Route
-server.get('/admin-payments', (req, res) => {
+server.get('/admin-payments', async (req, res) => {
     if (!req.session.isAuthenticated) { // Check for isAuthenticated
         return res.redirect('/'); // Redirect to login if not authenticated
     }
-    res.render('admin-payments', { layout: 'index', title: 'Payments', username: req.session.username });
+
+    const { paymentStatus } = req.query; // Get the selected payment status from the query parameters
+
+    try {
+        await mongoClient.connect();
+        const db = mongoClient.db(databaseName);
+        const collection = db.collection('paymentsCollection'); // Replace with your actual payments collection
+
+        const query = {};
+
+        // If a payment status is selected, filter by that status
+        if (paymentStatus) {
+            query.status = paymentStatus;
+        }
+
+        // Fetch payments based on the filter (if any)
+        const payments = await collection.find(query).toArray();
+
+        // Render the payments page with the filtered data
+        res.render('admin-payments', { layout: 'index', title: 'Payments', payments, username: req.session.username });
+
+    } catch (error) {
+        console.error('Error fetching payments:', error);
+        res.status(500).send('Error fetching payments');
+    } finally {
+        await mongoClient.close(); // Ensure the connection is closed
+    }
 });
 
 // Admin Logout Route

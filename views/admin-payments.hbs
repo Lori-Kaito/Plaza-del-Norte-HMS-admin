@@ -16,24 +16,31 @@
       <button type="submit">Filter</button>
     </form>
     <table>
-      <thead>
+  <thead>
+    <tr>
+      <th>Payment ID</th>
+      <th>Guest Name</th>
+      <th>Amount</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#if payments.length}}
+      {{#each payments}}
         <tr>
-          <th>Payment ID</th>
-          <th>Guest Name</th>
-          <th>Amount</th>
-          <th>Status</th>
+          <td>{{this.paymentID}}</td>
+          <td>{{this.guestName}}</td>
+          <td>{{this.amount}}</td>
+          <td>{{this.status}}</td>
         </tr>
-      </thead>
-      <tbody>
-        {{#each payments}}
-          <tr>
-            <td>{{this.paymentID}}</td>
-            <td>{{this.guestName}}</td>
-            <td>{{this.amount}}</td>
-            <td>{{this.status}}</td>
-          </tr>
-        {{/each}}
-      </tbody>
-    </table>
+      {{/each}}
+    {{else}}
+      <tr>
+        <td colspan="4">No payments found</td>
+      </tr>
+    {{/if}}
+  </tbody>
+</table>
+
   </body>
 </html>
