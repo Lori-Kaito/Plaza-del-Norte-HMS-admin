@@ -12,6 +12,8 @@ npm i express express-handlebars body-parser mongodb
 
 npm install express-session
 
+npm install bcrypt
+
 Run command:
 node app.js
 

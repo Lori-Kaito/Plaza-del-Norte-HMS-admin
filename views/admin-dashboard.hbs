@@ -1,15 +1,52 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Admin Dashboard</title>
-    <link href="/common/style.css" rel="stylesheet" />
-  </head>
-  <body>
-    <h1>Admin Dashboard</h1>
-    <ul>
-      <li><a href="/admin/bookings">Bookings Report</a></li>
-      <li><a href="/admin/rooms">Rooms Report</a></li>
-      <li><a href="/admin/payments">Payments</a></li>
-    </ul>
-  </body>
-</html>
+<h1>Admin Dashboard</h1>
+
+<h2>Occupancy</h2>
+<div>
+    <p>Total Rooms: {{occupancy.total}}</p>
+    <p>Occupied: {{occupancy.occupied}}</p>
+    <p>Vacant: {{occupancy.vacant}}</p>
+    <p>Not Ready: {{occupancy.notReady}}</p>
+</div>
+
+<h2>Revenue</h2>
+<div>
+    <p>Total Revenue: &#8369; {{revenue}}</p>
+</div>
+
+<h2>Reservations</h2>
+<table>
+   <thead>
+        <tr>
+            <th>Guest Name</th>
+            <th>Room Type</th>
+            <th>Check In</th>
+            <th>Check Out</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each reservations}}
+        <tr>
+            <td>{{this.guestName}}</td>
+            <td>{{this.roomType}}</td>
+               <td>
+                <script>
+                    document.write(new Date("{{this.checkIn}}").toLocaleString('en-PH', { 
+                        year: 'numeric', month: 'short', day: 'numeric'}));
+                </script>
+            </td>
+            <td>
+                <script>
+                    document.write(new Date("{{this.checkOut}}").toLocaleString('en-PH', { 
+                         year: 'numeric', month: 'short', day: 'numeric'}));
+                </script>
+            </td>
+            <td>{{this.status}}</td>
+        </tr>
+        {{else}}
+        <tr>
+            <td colspan="5">No reservations found.</td>
+        </tr>
+        {{/each}}
+    </tbody>
+</table>

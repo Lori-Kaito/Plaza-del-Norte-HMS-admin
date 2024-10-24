@@ -176,12 +176,52 @@ server.post('/admin/forgot-password', async (req, res) => {
     }
 });
 
-// Admin Dashboard Route
-server.get('/admin-dashboard', (req, res) => {
-    if (!req.session.isAuthenticated) { // Check for isAuthenticated
-        return res.redirect('/'); // Redirect to login if not authenticated
+// Admin Dashboard Route with Reservations
+// Fetch reservations for the admin dashboard
+server.get('/admin-dashboard', async (req, res) => {
+    if (!req.session.isAuthenticated) {
+        return res.redirect('/');
     }
-    res.render('admin-dashboard', { layout: 'index', title: 'Admin Dashboard', username: req.session.username });
+
+    try {
+        await mongoClient.connect();
+        const db = mongoClient.db(databaseName);
+        const collection = db.collection(reservationCollection);
+
+        // Fetch reservations (excluding total price)
+        const reservations = await collection.find({}, {
+            projection: { totalPrice: 0 }  // Exclude totalPrice field from results
+        }).toArray();
+
+        // Fetch room occupancy data
+        const roomCollection = db.collection(roomCollection);
+        const occupiedRooms = await roomCollection.countDocuments({ status: 'Occupied' });
+        const vacantRooms = await roomCollection.countDocuments({ status: 'Vacant' });
+        const notReadyRooms = await roomCollection.countDocuments({ status: 'Not Ready' });
+
+        // Fetch total revenue (sum of totalPrice from all reservations)
+        const totalRevenue = await collection.aggregate([
+            { $group: { _id: null, total: { $sum: "$totalPrice" } } }
+        ]).toArray();
+
+        // Render the admin-dashboard
+        res.render('admin-dashboard', {
+            layout: 'index',
+            title: 'Admin Dashboard',
+            reservations,
+            occupiedRooms,
+            vacantRooms,
+            notReadyRooms,
+            totalRevenue: totalRevenue.length ? totalRevenue[0].total : 0,
+            username: req.session.username
+        });
+
+    } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+        res.status(500).send('Error fetching dashboard data');
+    } finally {
+        await mongoClient.close();
+    }
 });
 
 // Bookings Route
