@@ -177,7 +177,7 @@ server.post('/admin/forgot-password', async (req, res) => {
 });
 
 // Admin Dashboard Route with Reservations
-// Fetch reservations for the admin dashboard
+// Admin Dashboard Route with Reservations
 server.get('/admin-dashboard', async (req, res) => {
     if (!req.session.isAuthenticated) {
         return res.redirect('/');
@@ -194,10 +194,10 @@ server.get('/admin-dashboard', async (req, res) => {
         }).toArray();
 
         // Fetch room occupancy data
-        const roomCollection = db.collection(roomCollection);
-        const occupiedRooms = await roomCollection.countDocuments({ status: 'Occupied' });
-        const vacantRooms = await roomCollection.countDocuments({ status: 'Vacant' });
-        const notReadyRooms = await roomCollection.countDocuments({ status: 'Not Ready' });
+        const roomsCollection = db.collection(roomCollection);
+        const occupiedRooms = await roomsCollection.countDocuments({ status: 'Occupied' });
+        const vacantRooms = await roomsCollection.countDocuments({ status: 'Vacant' });
+        const notReadyRooms = await roomsCollection.countDocuments({ status: 'Not Ready' });
 
         // Fetch total revenue (sum of totalPrice from all reservations)
         const totalRevenue = await collection.aggregate([
@@ -223,6 +223,7 @@ server.get('/admin-dashboard', async (req, res) => {
         await mongoClient.close();
     }
 });
+
 
 // Bookings Route
 server.get('/admin-bookings', async (req, res) => {
