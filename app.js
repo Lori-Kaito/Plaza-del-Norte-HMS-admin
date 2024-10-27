@@ -221,17 +221,21 @@ server.get('/admin-dashboard', async (req, res) => {
 
         const lastMonthTotal = lastMonthRevenue.length ? lastMonthRevenue[0].total : 0;
 
-        // Render the admin-dashboard
+        // After calculating `currentMonthTotal` and `lastMonthTotal`
+        const revenueDifference = currentMonthTotal - lastMonthTotal;
+
+        // Pass `revenueDifference` to the view
         res.render('admin-dashboard', {
-            layout: 'index',
-            title: 'Admin Dashboard',
-            reservations,
-            occupiedRooms,
-            vacantRooms,
-            notReadyRooms,
-            currentMonthTotal,
-            lastMonthTotal,
-            username: req.session.username
+        layout: 'index',
+        title: 'Admin Dashboard',
+        reservations,
+        occupiedRooms,
+        vacantRooms,
+        notReadyRooms,
+        currentMonthTotal,
+        lastMonthTotal,
+        revenueDifference,
+        username: req.session.username
         });
 
     } catch (error) {
@@ -241,8 +245,6 @@ server.get('/admin-dashboard', async (req, res) => {
         await mongoClient.close();
     }
 });
-
-
 
 // Bookings Route
 server.get('/admin-bookings', async (req, res) => {
