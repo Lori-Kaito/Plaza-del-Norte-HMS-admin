@@ -177,7 +177,6 @@ server.post('/admin/forgot-password', async (req, res) => {
 });
 
 // Admin Dashboard Route with Reservations
-// Admin Dashboard Route with Reservations
 server.get('/admin-dashboard', async (req, res) => {
     if (!req.session.isAuthenticated) {
         return res.redirect('/');
@@ -190,7 +189,7 @@ server.get('/admin-dashboard', async (req, res) => {
 
         // Fetch reservations (excluding total price)
         const reservations = await collection.find({}, {
-            projection: { totalPrice: 0 }  // Exclude totalPrice field from results
+            projection: { totalPrice: 0 }
         }).toArray();
 
         // Fetch room occupancy data
@@ -199,10 +198,28 @@ server.get('/admin-dashboard', async (req, res) => {
         const vacantRooms = await roomsCollection.countDocuments({ status: 'Vacant' });
         const notReadyRooms = await roomsCollection.countDocuments({ status: 'Not Ready' });
 
-        // Fetch total revenue (sum of totalPrice from all reservations)
-        const totalRevenue = await collection.aggregate([
+        // Fetch total revenue for the current month
+        const currentMonth = new Date();
+        const firstDayOfCurrentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+        const lastDayOfCurrentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+
+        const currentMonthRevenue = await collection.aggregate([
+            { $match: { checkIn: { $gte: firstDayOfCurrentMonth, $lte: lastDayOfCurrentMonth } } },
             { $group: { _id: null, total: { $sum: "$totalPrice" } } }
         ]).toArray();
+
+        const currentMonthTotal = currentMonthRevenue.length ? currentMonthRevenue[0].total : 0;
+
+        // Fetch total revenue for the previous month
+        const firstDayOfLastMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
+        const lastDayOfLastMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 0);
+
+        const lastMonthRevenue = await collection.aggregate([
+            { $match: { checkIn: { $gte: firstDayOfLastMonth, $lte: lastDayOfLastMonth } } },
+            { $group: { _id: null, total: { $sum: "$totalPrice" } } }
+        ]).toArray();
+
+        const lastMonthTotal = lastMonthRevenue.length ? lastMonthRevenue[0].total : 0;
 
         // Render the admin-dashboard
         res.render('admin-dashboard', {
@@ -212,7 +229,8 @@ server.get('/admin-dashboard', async (req, res) => {
             occupiedRooms,
             vacantRooms,
             notReadyRooms,
-            totalRevenue: totalRevenue.length ? totalRevenue[0].total : 0,
+            currentMonthTotal,
+            lastMonthTotal,
             username: req.session.username
         });
 
@@ -223,6 +241,7 @@ server.get('/admin-dashboard', async (req, res) => {
         await mongoClient.close();
     }
 });
+
 
 
 // Bookings Route

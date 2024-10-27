@@ -8,9 +8,11 @@
     <p>Not Ready: {{occupancy.notReady}}</p>
 </div>
 
-<h2>Revenue</h2>
+<h2>Revenue Comparison</h2>
 <div>
-    <p>Total Revenue: &#8369; {{revenue}}</p>
+    <p>Current Month Total Revenue: &#8369; {{currentMonthTotal}}</p>
+    <p>Last Month Total Revenue: &#8369; {{lastMonthTotal}}</p>
+    <p>Comparison: &#8369; {{currentMonthTotal}} vs &#8369; {{lastMonthTotal}}</p>
 </div>
 
 <h2>Reservations</h2>
@@ -29,7 +31,7 @@
         <tr>
             <td>{{this.guestName}}</td>
             <td>{{this.roomType}}</td>
-               <td>
+            <td>
                 <script>
                     document.write(new Date("{{this.checkIn}}").toLocaleString('en-PH', { 
                         year: 'numeric', month: 'short', day: 'numeric'}));
