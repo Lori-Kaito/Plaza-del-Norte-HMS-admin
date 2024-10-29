@@ -192,50 +192,77 @@ server.get('/admin-dashboard', async (req, res) => {
             projection: { totalPrice: 0 }
         }).toArray();
 
-        // Fetch room occupancy data
+        // Fetch room occupancy data by type
         const roomsCollection = db.collection(roomCollection);
-        const occupiedRooms = await roomsCollection.countDocuments({ status: 'Occupied' });
-        const vacantRooms = await roomsCollection.countDocuments({ status: 'Vacant' });
-        const notReadyRooms = await roomsCollection.countDocuments({ status: 'Not Ready' });
+        const roomTypes = ['Deluxe Queen', 'Deluxe Twin', 'Premiere', 'Dormitory'];
+        const occupiedRoomsByType = {};
+        const vacantRoomsByType = {};
+        const notReadyRoomsByType = {};
+
+        roomTypes.forEach(type => {
+            occupiedRoomsByType[type] = 0;
+            vacantRoomsByType[type] = 0;
+            notReadyRoomsByType[type] = 0;
+        });
+
+        const rooms = await roomsCollection.find({}).toArray();
+        rooms.forEach(room => {
+            const type = room.roomType;
+            const status = room.status;
+            if (roomTypes.includes(type)) {
+                if (status === 'Occupied') occupiedRoomsByType[type]++;
+                else if (status === 'Vacant') vacantRoomsByType[type]++;
+                else if (status === 'Not Ready') notReadyRoomsByType[type]++;
+            }
+        });
+
+        // Calculate the total number of rooms
+        const totalRooms = await roomsCollection.countDocuments();
 
         // Fetch total revenue for the current month
         const currentMonth = new Date();
         const firstDayOfCurrentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
         const lastDayOfCurrentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
-
         const currentMonthRevenue = await collection.aggregate([
             { $match: { checkIn: { $gte: firstDayOfCurrentMonth, $lte: lastDayOfCurrentMonth } } },
             { $group: { _id: null, total: { $sum: "$totalPrice" } } }
         ]).toArray();
-
         const currentMonthTotal = currentMonthRevenue.length ? currentMonthRevenue[0].total : 0;
 
         // Fetch total revenue for the previous month
         const firstDayOfLastMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
         const lastDayOfLastMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 0);
-
         const lastMonthRevenue = await collection.aggregate([
             { $match: { checkIn: { $gte: firstDayOfLastMonth, $lte: lastDayOfLastMonth } } },
             { $group: { _id: null, total: { $sum: "$totalPrice" } } }
         ]).toArray();
-
         const lastMonthTotal = lastMonthRevenue.length ? lastMonthRevenue[0].total : 0;
 
-        // After calculating `currentMonthTotal` and `lastMonthTotal`
         const revenueDifference = currentMonthTotal - lastMonthTotal;
 
-        // Pass `revenueDifference` to the view
+        // Calculate total revenue for the current year
+        const firstDayOfYear = new Date(currentMonth.getFullYear(), 0, 1);
+        const lastDayOfYear = new Date(currentMonth.getFullYear(), 11, 31);
+        const yearRevenue = await collection.aggregate([
+            { $match: { checkIn: { $gte: firstDayOfYear, $lte: lastDayOfYear } } },
+            { $group: { _id: null, total: { $sum: "$totalPrice" } } }
+        ]).toArray();
+        const totalYearRevenue = yearRevenue.length ? yearRevenue[0].total : 0;
+
+        // Render data to the view
         res.render('admin-dashboard', {
-        layout: 'index',
-        title: 'Admin Dashboard',
-        reservations,
-        occupiedRooms,
-        vacantRooms,
-        notReadyRooms,
-        currentMonthTotal,
-        lastMonthTotal,
-        revenueDifference,
-        username: req.session.username
+            layout: 'index',
+            title: 'Admin Dashboard',
+            reservations,
+            occupiedRoomsByType,
+            vacantRoomsByType,
+            notReadyRoomsByType,
+            totalRooms, // Add total room count here
+            currentMonthTotal,
+            lastMonthTotal,
+            revenueDifference,
+            totalYearRevenue,
+            username: req.session.username
         });
 
     } catch (error) {
@@ -245,6 +272,7 @@ server.get('/admin-dashboard', async (req, res) => {
         await mongoClient.close();
     }
 });
+
 
 // Bookings Route
 server.get('/admin-bookings', async (req, res) => {
