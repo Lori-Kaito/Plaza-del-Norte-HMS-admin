@@ -14,6 +14,8 @@ npm install express-session
 
 npm install bcrypt
 
+// npm install handlebars-helpers
+
 Run command:
 node app.js
 

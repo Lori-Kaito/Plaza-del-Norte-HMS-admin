@@ -3,6 +3,7 @@
 // npm i express express-handlebars body-parser mongodb
 // npm install express-session
 // npm install bcrypt
+// npm install handlebars-helpers
 
 // Run command:
 // node app.js
@@ -15,6 +16,7 @@ const session = require('express-session');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const { MongoClient, ObjectId, ServerApiVersion } = require('mongodb');
+const helpers = require('handlebars-helpers');
 
 // Middleware setup
 server.use(express.json());
@@ -41,6 +43,9 @@ server.engine('hbs', handlebars.engine({
     extname: 'hbs',
     layoutsDir: __dirname + '/views/layouts/', // Layouts directory
     defaultLayout: 'index', // Default layout
+    helpers: {
+        eq: (a, b) => a === b
+    }
 }));
 
 // Serve static files from the "public" directory
@@ -60,6 +65,7 @@ const databaseName = "hotelDB";
 const adminCollection = "adminCollection";
 const reservationCollection = "reservationCollection";
 const roomCollection = "roomCollection";
+// const paymentsCollection = "paymentsCollection"; // Collection for payments
 
 // Admin Login Route
 server.get('/', (req, res) => {
@@ -171,6 +177,44 @@ server.post('/admin/forgot-password', async (req, res) => {
     } catch (error) {
         console.error('Error handling forgot password:', error);
         res.status(500).send('Error processing request');
+    } finally {
+        await mongoClient.close();
+    }
+});
+
+// Admin Payments Route with Filtering
+server.get('/admin/payments', async (req, res) => {
+    if (!req.session.isAuthenticated) {
+        return res.redirect('/');
+    }
+
+    const { paymentStatus } = req.query; // Get the selected payment status from the query parameters
+
+    try {
+        await mongoClient.connect();
+        const db = mongoClient.db(databaseName);
+        const collection = db.collection(paymentsCollection); // Ensure this matches your database
+
+        const query = {};
+
+        // Filter payments based on the selected status
+        if (paymentStatus) {
+            query.status = paymentStatus;
+        }
+
+        const payments = await collection.find(query).toArray();
+
+        res.render('admin-payment', {
+            layout: 'index',
+            title: 'Payments',
+            payments,
+            paymentStatus, // Maintain the selected payment status in the view
+            username: req.session.username
+        });
+
+    } catch (error) {
+        console.error('Error fetching payments:', error);
+        res.status(500).send('Error fetching payments');
     } finally {
         await mongoClient.close();
     }
