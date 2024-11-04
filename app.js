@@ -1,9 +1,7 @@
 // Install Command:
 // npm init -y
 // npm i express express-handlebars body-parser mongodb
-// npm install express-session
-// npm install bcrypt
-// npm install handlebars-helpers
+// npm install express-session bcrypt handlebars-helpers
 
 // Run command:
 // node app.js
