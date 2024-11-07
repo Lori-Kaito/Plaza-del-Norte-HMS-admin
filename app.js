@@ -315,6 +315,35 @@ server.get('/admin-dashboard', async (req, res) => {
     }
 });
 
+// Admin Add Booking Route
+server.get('/admin/add-booking', (req, res) => {
+    if (!req.session.isAuthenticated) {
+        return res.redirect('/');
+    }
+    res.render('admin-add-booking', { layout: 'index', title: 'Add Booking', username: req.session.username });
+});
+
+// Handle Add Booking Form Submission
+server.post('/admin/add-booking', async (req, res) => {
+    if (!req.session.isAuthenticated) {
+        return res.redirect('/');
+    }
+    const bookingData = req.body; // Gather form data
+    try {
+        await mongoClient.connect();
+        const db = mongoClient.db(databaseName);
+        const collection = db.collection(reservationCollection);
+
+        // Insert the new booking into the database
+        await collection.insertOne(bookingData);
+        res.redirect('/admin-bookings'); // Redirect to bookings list
+    } catch (error) {
+        console.error('Error adding booking:', error);
+        res.status(500).send('Error adding booking');
+    } finally {
+        await mongoClient.close();
+    }
+});
 
 // Bookings Route
 server.get('/admin-bookings', async (req, res) => {
@@ -347,39 +376,6 @@ server.get('/admin-bookings', async (req, res) => {
         res.status(500).send('Error fetching bookings');
     } finally {
         await mongoClient.close(); // Ensure the connection is closed
-    }
-});
-
-// Bookings Route
-server.get('/admin-bookings', async (req, res) => {
-    if (!req.session.isAuthenticated) {
-        return res.redirect('/');
-    }
-
-    const { startDate, endDate } = req.query;
-
-    try {
-        await mongoClient.connect();
-        const db = mongoClient.db(databaseName);
-        const collection = db.collection(reservationCollection);
-
-        const query = {};
-
-        if (startDate) {
-            query.checkIn = { $gte: new Date(startDate) };
-        }
-        if (endDate) {
-            query.checkOut = { $lte: new Date(endDate) };
-        }
-
-        const bookings = await collection.find(query).toArray();
-        res.render('admin-bookings', { layout: 'index', title: 'Bookings', bookings, username: req.session.username });
-
-    } catch (error) {
-        console.error('Error fetching bookings:', error);
-        res.status(500).send('Error fetching bookings');
-    } finally {
-        await mongoClient.close();
     }
 });
 
