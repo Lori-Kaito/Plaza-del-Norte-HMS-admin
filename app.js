@@ -46,6 +46,15 @@ server.engine('hbs', handlebars.engine({
     }
 }));
 
+// Define the isAuthenticated middleware
+function isAuthenticated(req, res, next) {
+    if (req.session.isAuthenticated) {
+        return next();
+    } else {
+        res.redirect('/login');
+    }
+}
+
 // Serve static files from the "public" directory
 server.use(express.static('public'));
 
@@ -63,7 +72,7 @@ const databaseName = "hotelDB";
 const adminCollection = "adminCollection";
 const reservationCollection = "reservationCollection";
 const roomCollection = "roomCollection";
-// const paymentsCollection = "paymentsCollection"; // Collection for payments
+const paymentsCollection = "paymentsCollection"; // Collection for payments
 
 // Admin Login Route
 server.get('/', (req, res) => {
@@ -378,6 +387,66 @@ server.get('/admin-bookings', async (req, res) => {
         await mongoClient.close(); // Ensure the connection is closed
     }
 });
+
+// Render the booking edit page
+server.get('/admin/edit-booking/:id', isAuthenticated, async (req, res) => {
+    const bookingId = req.params.id;
+    try {
+        await mongoClient.connect();
+        const db = mongoClient.db(databaseName);
+        const booking = await db.collection(reservationCollection).findOne({ _id: new ObjectId(bookingId) });
+        if (booking) {
+            res.render('admin-edit-booking', {
+                layout: 'index',
+                title: 'Edit Booking',
+                booking,
+                username: req.session.username,
+            });
+        } else {
+            res.status(404).send('Booking not found');
+        }
+    } catch (error) {
+        console.error('Error fetching booking for edit:', error);
+        res.status(500).send('Error fetching booking for edit');
+    } finally {
+        await mongoClient.close();
+    }
+});
+
+// Handle booking edit form submission
+server.post('/admin/edit-booking/:id', isAuthenticated, async (req, res) => {
+    const bookingId = req.params.id;
+    const { guestID, adultPax, kidPax, roomType, checkIn, checkOut } = req.body;
+
+    try {
+        await mongoClient.connect();
+        const db = mongoClient.db(databaseName);
+
+        // Prepare the updated booking data
+        const updatedBooking = {
+            guestID,
+            adultPax: parseInt(adultPax),
+            kidPax: parseInt(kidPax),
+            roomType,
+            checkIn: new Date(checkIn),
+            checkOut: new Date(checkOut),
+        };
+
+        // Update the booking in the database
+        await db.collection(reservationCollection).updateOne(
+            { _id: new ObjectId(bookingId) },
+            { $set: updatedBooking }
+        );
+
+        res.redirect('/admin-bookings'); // Redirect to bookings page after successful update
+    } catch (error) {
+        console.error('Error updating booking:', error);
+        res.status(500).send('Error updating booking');
+    } finally {
+        await mongoClient.close();
+    }
+});
+
 
 // Booking Details Route
 server.get('/admin-booking-details/:id', async (req, res) => {
