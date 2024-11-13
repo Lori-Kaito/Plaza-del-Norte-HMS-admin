@@ -2,18 +2,18 @@
 
 <table>
     <thead>
-        <tr>
-            <th>Room Number</th>
-            <th>Room Type</th>
-            <th>Status</th>
+        <tr style="border-spacing: 15px;"> <!-- Add inline style for spacing -->
+            <th style="padding: 10px;">Room Number</th>
+            <th style="padding: 10px;">Room Type</th>
+            <th style="padding: 10px;">Status</th>
         </tr>
     </thead>
     <tbody>
         {{#each rooms}}
         <tr>
-            <td>{{roomNum}}</td>
-            <td>{{roomType}}</td>
-            <td>{{status}}</td>
+            <td>{{this.roomNum}}</td>
+            <td>{{this.roomType}}</td>
+            <td>{{this.status}}</td>
         </tr>
         {{/each}}
     </tbody>

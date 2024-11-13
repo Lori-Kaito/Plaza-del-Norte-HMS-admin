@@ -357,22 +357,59 @@ server.get('/admin/add-booking', (req, res) => {
 });
 
 // Handle Add Booking Form Submission
-server.post('/admin/add-booking', async (req, res) => {
+server.post('/admin-add-booking', async (req, res) => {
     if (!req.session.isAuthenticated) {
         return res.redirect('/');
     }
-    const bookingData = req.body; // Gather form data
+
     try {
         await mongoClient.connect();
         const db = mongoClient.db(databaseName);
-        const collection = db.collection(reservationCollection);
+        const bookingsCollection = db.collection(reservationCollection);
 
-        // Insert the new booking into the database
-        await collection.insertOne(bookingData);
-        res.redirect('/admin-bookings'); // Redirect to bookings list
+        // Extract data from the form submission
+        const { firstName, lastName, roomType, checkInDate, checkInTime, checkOutDate, checkOutTime, adultPax, kidPax } = req.body;
+
+        // Combine date and time fields into Date objects
+        const checkIn = new Date(`${checkInDate}T${checkInTime}`);
+        const checkOut = new Date(`${checkOutDate}T${checkOutTime}`);
+
+        // Combine firstName and lastName into guestName
+        const guestName = `${firstName} ${lastName}`;
+
+        // Validate checkIn and checkOut dates
+        if (checkIn >= checkOut) {
+            throw new Error('Check-In date and time must be before Check-Out date and time');
+        }
+
+        // Validate adultPax and kidPax
+        const adultPaxNum = parseInt(adultPax, 10);
+        const kidPaxNum = parseInt(kidPax, 10);
+
+        if (isNaN(adultPaxNum) || adultPaxNum <= 0) {
+            throw new Error('Invalid number of adults');
+        }
+
+        if (isNaN(kidPaxNum) || kidPaxNum < 0) {
+            throw new Error('Invalid number of kids');
+        }
+
+        // Insert the booking into the database
+        await bookingsCollection.insertOne({
+            guestName,
+            firstName,
+            lastName,
+            roomType,
+            checkIn, // Use combined checkIn value
+            checkOut, // Use combined checkOut value
+            adultPax: adultPaxNum,
+            kidPax: kidPaxNum
+        });
+
+        res.redirect('/admin-bookings'); // Redirect to bookings page after success
     } catch (error) {
         console.error('Error adding booking:', error);
-        res.status(500).send('Error adding booking');
+        res.status(400).send('Error adding booking: ' + error.message);
     } finally {
         await mongoClient.close();
     }
@@ -474,45 +511,36 @@ server.post('/admin/edit-booking/:id', isAuthenticated, async (req, res) => {
 
 // Booking Details Route
 server.get('/admin-booking-details/:id', async (req, res) => {
-    if (!req.session.isAuthenticated) { // Check if admin is authenticated
-        return res.redirect('/'); // Redirect to login if not authenticated
+    if (!req.session.isAuthenticated) {
+        return res.redirect('/');
     }
-
-    const bookingId = req.params.id;
 
     try {
         await mongoClient.connect();
         const db = mongoClient.db(databaseName);
-        const reservationCollection = db.collection('reservationCollection');
-        const guestsCollection = db.collection('guestsCollection'); // Collection for guest information
+        const bookingsCollection = db.collection(reservationCollection);
 
-        // Fetch the booking by its ID
-        const booking = await reservationCollection.findOne({ _id: new ObjectId(bookingId) });
+        // Retrieve booking by ID
+        const booking = await bookingsCollection.findOne({ _id: new ObjectId(req.params.id) });
 
-        if (booking) {
-            // Fetch the guest's details based on the guestID from the booking
-            const guest = await guestsCollection.findOne({ _id: new ObjectId(booking.guestID) });
-
-            // Pass both booking and guest details to the template
-            res.render('admin-booking-details', {
-                layout: 'index',
-                title: 'Booking Details',
-                booking, // Pass booking details
-                guest, // Pass guest details
-                username: req.session.username
-            });
-        } else {
-            // If no booking is found
-            res.status(404).send('Booking not found');
+        if (!booking) {
+            return res.status(404).send('Booking not found');
         }
 
+        // Pass the booking details to the template
+        res.render('admin-booking-details', {
+            layout: 'index',
+            title: 'Booking Details',
+            booking
+        });
     } catch (error) {
         console.error('Error fetching booking details:', error);
         res.status(500).send('Error fetching booking details');
     } finally {
-        await mongoClient.close(); // Ensure the connection is closed
+        await mongoClient.close();
     }
 });
+
 
 // Route to display all room details
 server.get('/admin-room-details', async (req, res) => {
