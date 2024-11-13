@@ -36,7 +36,10 @@
                     </div>  
 
         <div class="card revenue">
-            <h2>Revenue Comparison</h2>
+                <div class="title-header">
+                    <h2>REVENUE COMPARISON</h2>
+                    <a href="/admin-payments" class="view-all-link">View All</a> 
+                </div>
             <div>
                 <p>Current Month Total Revenue: &#8369; {{currentMonthTotal}}</p>
                 <p>Last Month Total Revenue: &#8369; {{lastMonthTotal}}</p>
@@ -46,15 +49,21 @@
 
     <!-- Yearly Revenue Section -->
         <div class="card yearly">
-            <div>
-                <h3>Total Revenue for the Year</h3>
+            <div>                        
+                <div class="title-header">
+                    <h2>YEARLY REVENUE</h2>
+                    <a href="/admin-payments" class="view-all-link">View All</a> 
+                </div>
                 <p>Yearly Total Revenue: &#8369; {{totalYearRevenue}}</p>
             </div>
         </div>
 
 
         <div class="card reservations">
-            <h2>Reservations</h2>
+        <div class="title-header">
+                <h2>Reservations</h2>
+                <a href="/admin-reservations" class="view-all-link">View All</a> 
+        </div>
             <table>
             <thead>
                     <tr>

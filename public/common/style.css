@@ -377,6 +377,13 @@ nav svg {
     grid-row: 3;
 }
 
+.title-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
 .dashboard-page table {
     width: 95%;
     margin: 20px auto;
@@ -392,6 +399,10 @@ nav svg {
     text-align: center;
     font-weight: bold;
     font-size: 1em;
+}
+
+.dashboard-page tr:nth-child(n+7) {
+    display: none;
 }
 
 .dashboard-page tbody td {
