@@ -1,79 +1,105 @@
+<div class="dashboard-page">
 <h1>Admin Dashboard</h1>
-<h2>Occupancy</h2>
-<p>Total Rooms: {{totalRooms}}</p>
+    <div class="dashboard-grid">
+            <!-- <h2>Occupancy</h2> -->
+                <!-- <h3>Total Rooms: {{totalRooms}}</h3> -->
+                    <div class="card occupied">
+                        <div class="status-container">
+                            <div class="circle-occupied"></div>
+                            <h2>Occupied</h2>
+                        </div>
+                            <div class="inner-card">
+                                {{#each occupiedRoomsByType}}
+                                    <p>{{@key}}: {{this}}</p>
+                                {{/each}}
+                            </div>
+                    </div>
 
-<h3>Occupied Room Types</h3>
-<ul>
-    <li>Deluxe Queen: {{occupiedRoomsByType.Deluxe_Queen}}</li>
-    <li>Deluxe Twin: {{occupiedRoomsByType.Deluxe_Twin}}</li>
-    <li>Premiere: {{occupiedRoomsByType.Premiere}}</li>
-    <li>Dormitory: {{occupiedRoomsByType.Dormitory}}</li>
-</ul>
+                    <div class="card vacant">
+                        <div class="status-container">
+                            <div class="circle-vacant"></div>
+                            <h2>Vacant</h2>
+                        </div>
+                            {{#each vacantRoomsByType}}
+                                <p>{{@key}}: {{this}}</p>
+                            {{/each}}
+                    </div>
 
-<h3>Vacant Room Types</h3>
-<ul>
-    <li>Deluxe Queen: {{vacantRoomsByType.Deluxe_Queen}}</li>
-    <li>Deluxe Twin: {{vacantRoomsByType.Deluxe_Twin}}</li>
-    <li>Premiere: {{vacantRoomsByType.Premiere}}</li>
-    <li>Dormitory: {{vacantRoomsByType.Dormitory}}</li>
-</ul>
+                    <div class="card nr">
+                        <div class="status-container">
+                            <div class="circle-nr"></div>
+                            <h2>Not Ready</h2>
+                        </div>
+                            {{#each notReadyRoomsByType}}
+                                <p>{{@key}}: {{this}}</p>
+                            {{/each}}
+                    </div>  
 
-<h3>Not Ready Room Types</h3>
-<ul>
-    <li>Deluxe Queen: {{notReadyRoomsByType.Deluxe_Queen}}</li>
-    <li>Deluxe Twin: {{notReadyRoomsByType.Deluxe_Twin}}</li>
-    <li>Premiere: {{notReadyRoomsByType.Premiere}}</li>
-    <li>Dormitory: {{notReadyRoomsByType.Dormitory}}</li>
-</ul>
+        <div class="card revenue">
+                <div class="title-header">
+                    <h2>REVENUE COMPARISON</h2>
+                    <a href="/admin-payments" class="view-all-link">View All</a> 
+                </div>
+            <div>
+                <p>Current Month Total Revenue: &#8369; {{currentMonthTotal}}</p>
+                <p>Last Month Total Revenue: &#8369; {{lastMonthTotal}}</p>
+                <p>Difference: &#8369; {{revenueDifference}}</p>
+            </div>
+        </div>
+
+    <!-- Yearly Revenue Section -->
+        <div class="card yearly">
+            <div>                        
+                <div class="title-header">
+                    <h2>YEARLY REVENUE</h2>
+                    <a href="/admin-payments" class="view-all-link">View All</a> 
+                </div>
+                <p>Yearly Total Revenue: &#8369; {{totalYearRevenue}}</p>
+            </div>
+        </div>
 
 
-<h2>Revenue Comparison</h2>
-<div>
-    <p>Current Month Total Revenue: &#8369; {{currentMonthTotal}}</p>
-    <p>Last Month Total Revenue: &#8369; {{lastMonthTotal}}</p>
-    <p>Difference: &#8369; {{revenueDifference}}</p>
+        <div class="card reservations">
+        <div class="title-header">
+                <h2>Reservations</h2>
+                <a href="/admin-reservations" class="view-all-link">View All</a> 
+        </div>
+            <table>
+            <thead>
+                    <tr>
+                        <th>Guest Name</th>
+                        <th>Room Type</th>
+                        <th>Check In</th>
+                        <th>Check Out</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each reservations}}
+                    <tr>
+                        <td>{{this.guestName}}</td>
+                        <td>{{this.roomType}}</td>
+                        <td>
+                            <script>
+                                document.write(new Date("{{this.checkIn}}").toLocaleString('en-PH', { 
+                                    year: 'numeric', month: 'short', day: 'numeric'}));
+                            </script>
+                        </td>
+                        <td>
+                            <script>
+                                document.write(new Date("{{this.checkOut}}").toLocaleString('en-PH', { 
+                                    year: 'numeric', month: 'short', day: 'numeric'}));
+                            </script>
+                        </td>
+                        <td>{{this.status}}</td>
+                    </tr>
+                    {{else}}
+                    <tr>
+                        <td colspan="5">No reservations found.</td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
-
-<!-- Yearly Revenue Section -->
-<div>
-    <h3>Total Revenue for the Year</h3>
-    <p>Yearly Total Revenue: &#8369; {{totalYearRevenue}}</p>
-</div>
-
-<h2>Reservations</h2>
-<table>
-   <thead>
-        <tr>
-            <th>Guest Name</th>
-            <th>Room Type</th>
-            <th>Check In</th>
-            <th>Check Out</th>
-            <th>Status</th>
-        </tr>
-    </thead>
-    <tbody>
-        {{#each reservations}}
-        <tr>
-            <td>{{this.guestName}}</td>
-            <td>{{this.roomType}}</td>
-            <td>
-                <script>
-                    document.write(new Date("{{this.checkIn}}").toLocaleString('en-PH', { 
-                        year: 'numeric', month: 'short', day: 'numeric'}));
-                </script>
-            </td>
-            <td>
-                <script>
-                    document.write(new Date("{{this.checkOut}}").toLocaleString('en-PH', { 
-                         year: 'numeric', month: 'short', day: 'numeric'}));
-                </script>
-            </td>
-            <td>{{this.status}}</td>
-        </tr>
-        {{else}}
-        <tr>
-            <td colspan="5">No reservations found.</td>
-        </tr>
-        {{/each}}
-    </tbody>
-</table>
