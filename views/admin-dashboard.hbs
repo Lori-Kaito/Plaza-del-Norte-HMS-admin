@@ -1,24 +1,31 @@
 <h1>Admin Dashboard</h1>
-
 <h2>Occupancy</h2>
-<div>
-    <h3>Total Rooms: {{totalRooms}}</h3>
+<p>Total Rooms: {{totalRooms}}</p>
 
-    <h3>Occupied Room Types</h3>
-    {{#each occupiedRoomsByType}}
-        <p>{{@key}}: {{this}}</p>
-    {{/each}}
+<h3>Occupied Room Types</h3>
+<ul>
+    <li>Deluxe Queen: {{occupiedRoomsByType.Deluxe_Queen}}</li>
+    <li>Deluxe Twin: {{occupiedRoomsByType.Deluxe_Twin}}</li>
+    <li>Premiere: {{occupiedRoomsByType.Premiere}}</li>
+    <li>Dormitory: {{occupiedRoomsByType.Dormitory}}</li>
+</ul>
 
-    <h3>Vacant Room Types</h3>
-    {{#each vacantRoomsByType}}
-        <p>{{@key}}: {{this}}</p>
-    {{/each}}
+<h3>Vacant Room Types</h3>
+<ul>
+    <li>Deluxe Queen: {{vacantRoomsByType.Deluxe_Queen}}</li>
+    <li>Deluxe Twin: {{vacantRoomsByType.Deluxe_Twin}}</li>
+    <li>Premiere: {{vacantRoomsByType.Premiere}}</li>
+    <li>Dormitory: {{vacantRoomsByType.Dormitory}}</li>
+</ul>
 
-    <h3>Not Ready Room Types</h3>
-    {{#each notReadyRoomsByType}}
-        <p>{{@key}}: {{this}}</p>
-    {{/each}}
-</div>
+<h3>Not Ready Room Types</h3>
+<ul>
+    <li>Deluxe Queen: {{notReadyRoomsByType.Deluxe_Queen}}</li>
+    <li>Deluxe Twin: {{notReadyRoomsByType.Deluxe_Twin}}</li>
+    <li>Premiere: {{notReadyRoomsByType.Premiere}}</li>
+    <li>Dormitory: {{notReadyRoomsByType.Dormitory}}</li>
+</ul>
+
 
 <h2>Revenue Comparison</h2>
 <div>

@@ -227,7 +227,7 @@ server.get('/admin/payments', async (req, res) => {
     }
 });
 
-// Admin Dashboard Route with Reservations
+// Admin Dashboard Route
 server.get('/admin-dashboard', async (req, res) => {
     if (!req.session.isAuthenticated) {
         return res.redirect('/');
@@ -236,56 +236,74 @@ server.get('/admin-dashboard', async (req, res) => {
     try {
         await mongoClient.connect();
         const db = mongoClient.db(databaseName);
-        const collection = db.collection(reservationCollection);
 
         // Fetch reservations (excluding total price)
+        const collection = db.collection(reservationCollection);
         const reservations = await collection.find({}, {
             projection: { totalPrice: 0 }
         }).toArray();
 
         // Fetch room occupancy data by type
         const roomsCollection = db.collection(roomCollection);
-        const roomTypes = ['Deluxe Queen', 'Deluxe Twin', 'Premiere', 'Dormitory'];
-        const occupiedRoomsByType = {};
-        const vacantRoomsByType = {};
-        const notReadyRoomsByType = {};
 
-        roomTypes.forEach(type => {
-            occupiedRoomsByType[type] = 0;
-            vacantRoomsByType[type] = 0;
-            notReadyRoomsByType[type] = 0;
-        });
+        // Initialize counters with simplified keys (no spaces)
+        const occupiedRoomsByType = { 'Deluxe_Queen': 0, 'Deluxe_Twin': 0, 'Premiere': 0, 'Dormitory': 0 };
+        const vacantRoomsByType = { 'Deluxe_Queen': 0, 'Deluxe_Twin': 0, 'Premiere': 0, 'Dormitory': 0 };
+        const notReadyRoomsByType = { 'Deluxe_Queen': 0, 'Deluxe_Twin': 0, 'Premiere': 0, 'Dormitory': 0 };
 
+        // Map room types and statuses to user-friendly keys
+        const roomTypeMap = { 'DQ': 'Deluxe_Queen', 'DT': 'Deluxe_Twin', 'PRMR': 'Premiere', 'DORM': 'Dormitory' };
+        const statusMapping = {
+            'VR': 'Vacant',
+            'VC': 'Vacant',
+            'OCC': 'Occupied',
+            'DND': 'Occupied',
+            'ARR': 'Not Ready',
+            'RS': 'Not Ready'
+        };
+
+        // Process rooms and calculate counts
         const rooms = await roomsCollection.find({}).toArray();
         rooms.forEach(room => {
-            const type = room.roomType;
-            const status = room.status;
-            if (roomTypes.includes(type)) {
-                if (status === 'Occupied') occupiedRoomsByType[type]++;
-                else if (status === 'Vacant') vacantRoomsByType[type]++;
-                else if (status === 'Not Ready') notReadyRoomsByType[type]++;
+            const roomType = roomTypeMap[room.roomType];
+            const status = statusMapping[room.status];
+
+            if (!roomType || !status) return; // Skip unrecognized types or statuses
+
+            if (status === 'Occupied') {
+                occupiedRoomsByType[roomType]++;
+            } else if (status === 'Vacant') {
+                vacantRoomsByType[roomType]++;
+            } else if (status === 'Not Ready') {
+                notReadyRoomsByType[roomType]++;
             }
         });
 
         // Calculate the total number of rooms
-        const totalRooms = await roomsCollection.countDocuments();
+        const totalRooms = rooms.length;
 
         // Fetch total revenue for the current month
         const currentMonth = new Date();
         const firstDayOfCurrentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
         const lastDayOfCurrentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
-        const currentMonthRevenue = await collection.aggregate([
-            { $match: { checkIn: { $gte: firstDayOfCurrentMonth, $lte: lastDayOfCurrentMonth } } },
-            { $group: { _id: null, total: { $sum: "$totalPrice" } } }
+        const currentMonthRevenue = await db.collection(paymentsCollection).aggregate([
+            { $match: { 
+                paymentDate: { $gte: firstDayOfCurrentMonth, $lte: lastDayOfCurrentMonth },
+                status: "Paid" // Only include paid payments
+            } },
+            { $group: { _id: null, total: { $sum: "$amount" } } }
         ]).toArray();
         const currentMonthTotal = currentMonthRevenue.length ? currentMonthRevenue[0].total : 0;
 
         // Fetch total revenue for the previous month
         const firstDayOfLastMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
         const lastDayOfLastMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 0);
-        const lastMonthRevenue = await collection.aggregate([
-            { $match: { checkIn: { $gte: firstDayOfLastMonth, $lte: lastDayOfLastMonth } } },
-            { $group: { _id: null, total: { $sum: "$totalPrice" } } }
+        const lastMonthRevenue = await db.collection(paymentsCollection).aggregate([
+            { $match: { 
+                paymentDate: { $gte: firstDayOfLastMonth, $lte: lastDayOfLastMonth },
+                status: "Paid" // Only include paid payments
+            } },
+            { $group: { _id: null, total: { $sum: "$amount" } } }
         ]).toArray();
         const lastMonthTotal = lastMonthRevenue.length ? lastMonthRevenue[0].total : 0;
 
@@ -294,11 +312,15 @@ server.get('/admin-dashboard', async (req, res) => {
         // Calculate total revenue for the current year
         const firstDayOfYear = new Date(currentMonth.getFullYear(), 0, 1);
         const lastDayOfYear = new Date(currentMonth.getFullYear(), 11, 31);
-        const yearRevenue = await collection.aggregate([
-            { $match: { checkIn: { $gte: firstDayOfYear, $lte: lastDayOfYear } } },
-            { $group: { _id: null, total: { $sum: "$totalPrice" } } }
+        const yearRevenue = await db.collection(paymentsCollection).aggregate([
+            { $match: { 
+                paymentDate: { $gte: firstDayOfYear, $lte: lastDayOfYear },
+                status: "Paid" // Only include paid payments
+            } },
+            { $group: { _id: null, total: { $sum: "$amount" } } }
         ]).toArray();
         const totalYearRevenue = yearRevenue.length ? yearRevenue[0].total : 0;
+
 
         // Render data to the view
         res.render('admin-dashboard', {
@@ -308,7 +330,7 @@ server.get('/admin-dashboard', async (req, res) => {
             occupiedRoomsByType,
             vacantRoomsByType,
             notReadyRoomsByType,
-            totalRooms, // Add total room count here
+            totalRooms,
             currentMonthTotal,
             lastMonthTotal,
             revenueDifference,
@@ -323,6 +345,8 @@ server.get('/admin-dashboard', async (req, res) => {
         await mongoClient.close();
     }
 });
+
+
 
 // Admin Add Booking Route
 server.get('/admin/add-booking', (req, res) => {
@@ -521,37 +545,44 @@ server.get('/admin-room-details', async (req, res) => {
 
 // Route to Payments
 server.get('/admin-payments', async (req, res) => {
-    if (!req.session.isAuthenticated) { // Check for isAuthenticated
+    if (!req.session.isAuthenticated) { // Ensure the user is authenticated
         return res.redirect('/'); // Redirect to login if not authenticated
     }
 
-    const { paymentStatus } = req.query; // Get the selected payment status from the query parameters
+    const { paymentStatus } = req.query; // Extract the selected payment status from query parameters
 
     try {
         await mongoClient.connect();
         const db = mongoClient.db(databaseName);
-        const collection = db.collection('paymentsCollection'); // Replace with your actual payments collection
+        const collection = db.collection(paymentsCollection); // Ensure this matches your database's payments collection name
 
         const query = {};
 
-        // If a payment status is selected, filter by that status
-        if (paymentStatus) {
-            query.status = paymentStatus;
+        // Add filtering by payment status if specified
+        if (paymentStatus && paymentStatus !== 'All') {
+            query.status = paymentStatus; // Adjust the field name if your database uses a different field
         }
 
-        // Fetch payments based on the filter (if any)
+        // Fetch the filtered payments
         const payments = await collection.find(query).toArray();
 
-        // Render the payments page with the filtered data
-        res.render('admin-payments', { layout: 'index', title: 'Payments', payments, username: req.session.username });
+        // Render the admin-payments page with filtered data
+        res.render('admin-payments', {
+            layout: 'index',
+            title: 'Payments',
+            payments,
+            paymentStatus: paymentStatus || 'All', // Retain the selected filter status in the view
+            username: req.session.username // Pass username for display
+        });
 
     } catch (error) {
         console.error('Error fetching payments:', error);
-        res.status(500).send('Error fetching payments');
+        res.status(500).send('Error fetching payments'); // Send error response in case of issues
     } finally {
-        await mongoClient.close(); // Ensure the connection is closed
+        await mongoClient.close(); // Ensure MongoDB connection is closed
     }
 });
+
 
 // Admin Logout Route
 server.get('/admin-logout', (req, res) => {

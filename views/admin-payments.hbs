@@ -8,15 +8,16 @@
     <div class="payment-page">
       <span class="payment-header">
       <h1>Payments</h1>
-      <form action="/admin/payments" method="GET">
-        <label for="paymentStatus">Payment Status:</label>
-        <select id="paymentStatus" name="paymentStatus">
-          <option value="Paid">Paid</option>
-          <option value="Pending">Pending</option>
-        </select><br>
-
-        <button type="submit">Filter</button>
-      </form>
+      <form method="GET" action="/admin-payments">
+    <label for="paymentStatus">Filter by Payment Status:</label>
+    <select id="paymentStatus" name="paymentStatus">
+        <option value="All" {{#if (eq paymentStatus "All")}}selected{{/if}}>All</option>
+        <option value="Pending" {{#if (eq paymentStatus "Pending")}}selected{{/if}}>Pending</option>
+         <option value="Paid" {{#if (eq paymentStatus "Paid")}}selected{{/if}}>Paid</option>
+        <option value="Failed" {{#if (eq paymentStatus "Failed")}}selected{{/if}}>Failed</option>
+    </select>
+    <button type="submit">Filter</button>
+</form>
       </span>
       <table>
         <thead>
@@ -25,84 +26,33 @@
             <th>Guest Name</th>
             <th>Amount</th>
             <th>Status</th>
+             <th>Payment Date</th>
           </tr>
         </thead>
 
-  <tbody>
-            <!-- Sample Data -->
-      <tr>
-        <td>1001</td>
-        <td>John Doe</td>
-        <td>150.00</td>
-        <td>Paid</td>
-      </tr>
-      <tr>
-        <td>1002</td>
-        <td>Jane Smith</td>
-        <td>200.00</td>
-        <td>Pending</td>
-      </tr>
-      <tr>
-        <td>1003</td>
-        <td>Michael Johnson</td>
-        <td>300.00</td>
-        <td>Paid</td>
-      </tr>
-      <tr>
-        <td>1004</td>
-        <td>Emily Davis</td>
-        <td>250.00</td>
-        <td>Pending</td>
-      </tr>
-      <tr>
-        <td>1005</td>
-        <td>Chris Brown</td>
-        <td>400.00</td>
-        <td>Paid</td>
-      </tr>
-      <tr>
-        <td>1006</td>
-        <td>Sarah Wilson</td>
-        <td>175.00</td>
-        <td>Pending</td>
-      </tr>
-      <tr>
-        <td>1007</td>
-        <td>David Anderson</td>
-        <td>500.00</td>
-        <td>Paid</td>
-      </tr>
-      <tr>
-        <td>1008</td>
-        <td>Laura Martinez</td>
-        <td>225.00</td>
-        <td>Pending</td>
-      </tr>
-      <tr>
-        <td>1009</td>
-        <td>Daniel Thomas</td>
-        <td>600.00</td>
-        <td>Paid</td>
-      </tr>
-      <tr>
-        <td>1010</td>
-        <td>Jessica Lee</td>
-        <td>320.00</td>
-        <td>Pending</td>
-      </tr>
-    </tbody>
-
-
-        {{!-- <tbody>
+        <tbody>
           {{#each payments}}
             <tr>
               <td>{{this.paymentID}}</td>
-              <td>{{this.guestName}}</td>
+               <td>{{this.firstName}} {{this.lastName}}</td>
               <td>{{this.amount}}</td>
               <td>{{this.status}}</td>
+              <td>
+              <script>
+                  document.write(new Date("{{this.paymentDate}}").toLocaleString('en-PH', { 
+                      weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', 
+                      hour: '2-digit', minute: '2-digit', hour12: true 
+                  }));
+              </script>
+              </td>
+
             </tr>
+            {{else}}
+        <tr>
+            <td colspan="4">No payments found</td>
+        </tr>
           {{/each}}
-        </tbody> --}}
+        </tbody>
       </table>
     </div>
   </body>
