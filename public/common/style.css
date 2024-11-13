@@ -268,3 +268,145 @@ nav svg {
     text-align: center;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
 }
+
+
+/* 
+-----------------------
+-- DASHBOARD STYLES --
+-----------------------
+*/
+ 
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.dashboard-page h1, .dashboard-page h2,  .dashboard-page h3 {
+    text-transform: uppercase;
+}
+
+.dashboard-page h1 {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.dashboard-page  {
+    padding-right: 15px;
+}
+
+.card  {
+    padding: 20px;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.card .revenue {
+    padding: 5px !important; 
+}
+
+
+.occupied *, .vacant *, .nr *, 
+.yearly *, .revenue *, .reservations * {
+    background-color: white;
+}
+
+.occupied, .vacant, .nr, 
+.yearly, .revenue, .reservations {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+    height: auto;
+}
+
+.status-container {
+    display: flex;
+    align-items: center; 
+    gap: 20px;
+    padding-bottom: 10px;
+}
+
+.circle-occupied {
+    width: 50px; 
+    height: 50px;
+    background-color: #D54F4F; 
+}
+
+.circle-vacant {
+    width: 50px; 
+    height: 50px;
+    background-color: #A1CE69; }
+
+
+.circle-nr {
+    width: 50px; 
+    height: 50px;
+    background-color: #D5BA4F; }
+
+
+.occupied {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.vacant {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+
+.nr {
+    grid-column: 3;
+    grid-row: 1;
+}
+
+
+.reservations {
+    grid-column: 1 / 3;
+    grid-row: 2 / 4;
+}
+
+.revenue {
+    grid-column: 3;
+    grid-row: 2;
+}
+
+.yearly {
+    grid-column: 3;
+    grid-row: 3;
+}
+
+.dashboard-page table {
+    width: 95%;
+    margin: 20px auto;
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden; 
+  }
+  
+  .dashboard-page thead th {
+    background-color: #FEFEFE;
+    color: #333; 
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1em;
+}
+
+.dashboard-page tbody td {
+    padding: 5px; 
+    border-bottom: 1px solid #ddd;
+}
+
+.dashboard-page tbody tr:nth-child(odd) td {
+    background-color: #e8e8e8;
+}
+
+.dashboard-page thead th, tbody td {
+    text-align: center;
+}
+
+.dashboard-page tbody tr:nth-child(even) td {
+    background-color: #FEFEFE;
+}
