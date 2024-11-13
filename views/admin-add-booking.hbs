@@ -1,5 +1,5 @@
 <div class="center">
-  <form action="/admin/add-booking" method="POST" class="form-tab">
+  <form action="/admin-add-booking" method="POST" class="form-tab">
       
       <label for="firstName">Full Name:</label>
         <div class="mini-container">
@@ -7,8 +7,13 @@
             <input type="text" id="lastName" name="lastName" required placeholder="Last">
         </div><br>
 
-      <label for="roomNumber">Room Number:</label>
-      <input type="text" id="roomNumber" name="roomNumber" pattern="[A-Za-z]\d{3}" title="Room number should be in the format 'Letter followed by three digits'" required><br><br>
+      <label for="roomNum">Room Number:</label>
+      <input
+          type="text"
+          id="roomNum"
+          name="roomNum"
+          placeholder="Enter room number (e.g., A101)"
+          required>
       
       <label for="roomType">Room Type:</label>
       <select id="roomType" name="roomType" required>

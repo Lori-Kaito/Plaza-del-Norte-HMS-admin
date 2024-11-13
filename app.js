@@ -42,6 +42,9 @@ server.engine('hbs', handlebars.engine({
     layoutsDir: __dirname + '/views/layouts/', // Layouts directory
     defaultLayout: 'index', // Default layout
     helpers: {
+        ifEquals: function (arg1, arg2, options){
+            return arg1 === arg2 ? options.fn(this): options.inverse(this);
+        },
         eq: (a, b) => a === b
     }
 }));
@@ -67,6 +70,14 @@ const mongoClient = new MongoClient(databaseURL, {
         deprecationErrors: true,
     }
 });
+
+// Room Type Mapping
+const roomTypeMapping = {
+    DQ: "Deluxe Queen",
+    DT: "Deluxe Twin",
+    PRMR: "Premiere",
+    DORM: "Dormitory",
+};
 
 const databaseName = "hotelDB";
 const adminCollection = "adminCollection";
@@ -366,20 +377,34 @@ server.post('/admin-add-booking', async (req, res) => {
         await mongoClient.connect();
         const db = mongoClient.db(databaseName);
         const bookingsCollection = db.collection(reservationCollection);
+        const roomsCollection = db.collection(roomCollection); // Access roomCollection
 
         // Extract data from the form submission
-        const { firstName, lastName, roomType, checkInDate, checkInTime, checkOutDate, checkOutTime, adultPax, kidPax } = req.body;
+        const { firstName, lastName, roomType, roomNum, checkInDate, checkInTime, checkOutDate, checkOutTime, adultPax, kidPax } = req.body;
 
         // Combine date and time fields into Date objects
         const checkIn = new Date(`${checkInDate}T${checkInTime}`);
         const checkOut = new Date(`${checkOutDate}T${checkOutTime}`);
 
         // Combine firstName and lastName into guestName
-        const guestName = `${firstName} ${lastName}`;
+        const guestName = `${firstName.trim()} ${lastName.trim()}`.trim();
 
         // Validate checkIn and checkOut dates
         if (checkIn >= checkOut) {
-            throw new Error('Check-In date and time must be before Check-Out date and time');
+            throw new Error('Check-In date and time must be before Check-Out date and time.');
+        }
+
+        const trimmedRoomNum = roomNum.trim().toUpperCase(); // Ensure no leading/trailing spaces and convert to uppercase
+        // Validate roomNum format (e.g., A101, B203)
+        const roomNumPattern = /^[A-Z][0-9]{3}$/;
+        if (!roomNumPattern.test(trimmedRoomNum)) {
+            throw new Error('Invalid room number format. Room number must consist of one letter followed by three digits (e.g., A101).');
+        }
+
+        // Check if roomNum exists in roomCollection
+        const roomExists = await roomsCollection.findOne({ roomNum: trimmedRoomNum });
+        if (!roomExists) {
+            throw new Error(`Room number ${roomNum} does not exist in the database.`);
         }
 
         // Validate adultPax and kidPax
@@ -387,26 +412,34 @@ server.post('/admin-add-booking', async (req, res) => {
         const kidPaxNum = parseInt(kidPax, 10);
 
         if (isNaN(adultPaxNum) || adultPaxNum <= 0) {
-            throw new Error('Invalid number of adults');
+            throw new Error('Invalid number of adults.');
         }
 
         if (isNaN(kidPaxNum) || kidPaxNum < 0) {
-            throw new Error('Invalid number of kids');
+            throw new Error('Invalid number of kids.');
         }
 
         // Insert the booking into the database
-        await bookingsCollection.insertOne({
+        const newBooking = {
             guestName,
-            firstName,
-            lastName,
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
             roomType,
+            roomNum: roomNum.trim(),
             checkIn, // Use combined checkIn value
             checkOut, // Use combined checkOut value
             adultPax: adultPaxNum,
-            kidPax: kidPaxNum
-        });
+            kidPax: kidPaxNum,
+        };
 
-        res.redirect('/admin-bookings'); // Redirect to bookings page after success
+        const result = await bookingsCollection.insertOne(newBooking);
+
+        if (result.acknowledged) {
+            console.log('Booking added successfully:', result.insertedId);
+            res.redirect('/admin-bookings'); // Redirect to bookings page after success
+        } else {
+            throw new Error('Failed to add booking to the database.');
+        }
     } catch (error) {
         console.error('Error adding booking:', error);
         res.status(400).send('Error adding booking: ' + error.message);
@@ -414,6 +447,8 @@ server.post('/admin-add-booking', async (req, res) => {
         await mongoClient.close();
     }
 });
+
+
 
 // Bookings Route
 server.get('/admin-bookings', async (req, res) => {
@@ -450,64 +485,96 @@ server.get('/admin-bookings', async (req, res) => {
 });
 
 // Render the booking edit page
-server.get('/admin/edit-booking/:id', isAuthenticated, async (req, res) => {
-    const bookingId = req.params.id;
+server.get('/admin-edit-booking/:id', async (req, res) => {
+    if (!req.session.isAuthenticated) {
+        return res.redirect('/');
+    }
+
     try {
         await mongoClient.connect();
         const db = mongoClient.db(databaseName);
-        const booking = await db.collection(reservationCollection).findOne({ _id: new ObjectId(bookingId) });
-        
-        if (booking) {
-            res.render('admin-edit-booking', {
-                layout: 'index',
-                title: 'Edit Booking',
-                booking,
-                username: req.session.username,
-            });
-        } else {
-            res.status(404).send('Booking not found');
+        const bookingsCollection = db.collection(reservationCollection);
+
+        // Fetch booking details by ID
+        const booking = await bookingsCollection.findOne({ _id: new ObjectId(req.params.id) });
+
+        if (!booking) {
+            return res.status(404).send('Booking not found');
         }
+
+        // Pass booking details to the view
+        res.render('admin-edit-booking', {
+            layout: 'index',
+            title: 'Edit Booking',
+            booking, // Pass booking data to the view
+        });
     } catch (error) {
-        console.error('Error fetching booking for edit:', error);
-        res.status(500).send('Error fetching booking for edit');
+        console.error('Error fetching booking details for editing:', error);
+        res.status(500).send('Error fetching booking details');
     } finally {
         await mongoClient.close();
     }
 });
 
 // Handle booking edit form submission
-server.post('/admin/edit-booking/:id', isAuthenticated, async (req, res) => {
-    const bookingId = req.params.id;
-    const { guestID, adultPax, kidPax, roomType, checkIn, checkOut } = req.body;
+server.post('/admin-edit-booking/:id', async (req, res) => {
+    if (!req.session.isAuthenticated) {
+        return res.redirect('/');
+    }
 
     try {
         await mongoClient.connect();
         const db = mongoClient.db(databaseName);
+        const bookingsCollection = db.collection(reservationCollection);
 
-        // Prepare the updated booking data
-        const updatedBooking = {
-            guestID,
-            adultPax: parseInt(adultPax),
-            kidPax: parseInt(kidPax),
-            roomType,
-            checkIn: new Date(checkIn),
-            checkOut: new Date(checkOut),
-        };
+        // Extract updated fields from the form
+        const { guestName, roomType, roomNum, checkIn, checkOut, adultPax, kidPax } = req.body;
 
-        // Update the booking in the database
-        await db.collection(reservationCollection).updateOne(
-            { _id: new ObjectId(bookingId) },
-            { $set: updatedBooking }
+        // Validate roomNum format
+        const roomNumPattern = /^[A-Z][0-9]{3}$/;
+        const trimmedRoomNum = roomNum.trim().toUpperCase();
+        if (!roomNumPattern.test(trimmedRoomNum)) {
+            throw new Error('Invalid room number format.');
+        }
+
+        const fullRoomType = roomTypeMapping[roomType] || roomType;
+        // Validate check-in and check-out dates
+        const checkInDate = new Date(checkIn);
+        const checkOutDate = new Date(checkOut);
+        if (checkInDate >= checkOutDate) {
+            throw new Error('Check-in date must be earlier than check-out date.');
+        }
+
+        // Update booking in the database
+        const updateResult = await bookingsCollection.updateOne(
+            { _id: new ObjectId(req.params.id) },
+            {
+                $set: {
+                    guestName: guestName.trim(),
+                    roomType: fullRoomType,
+                    roomNum: trimmedRoomNum,
+                    checkIn: checkInDate,
+                    checkOut: checkOutDate,
+                    adultPax: parseInt(adultPax, 10),
+                    kidPax: parseInt(kidPax, 10),
+                },
+            }
         );
 
-        res.redirect('/admin-bookings'); // Redirect to bookings page after successful update
+        if (updateResult.modifiedCount === 1) {
+            console.log(`Booking with ID ${req.params.id} updated successfully.`);
+            res.redirect('/admin-bookings');
+        } else {
+            throw new Error('Failed to update booking.');
+        }
     } catch (error) {
         console.error('Error updating booking:', error);
-        res.status(500).send('Error updating booking');
+        res.status(400).send('Error updating booking: ' + error.message);
     } finally {
         await mongoClient.close();
     }
 });
+
 
 server.post('/admin-delete-booking/:id', async (req, res) => {
     if (!req.session.isAuthenticated) {
