@@ -1,37 +1,33 @@
-<div class="center">
-  <form action="/admin/add-booking" method="POST" class="form-tab">
-      
-      <label for="firstName">Full Name:</label>
-        <div class="mini-container">
-            <input type="text" id="firstName" name="firstName" required placeholder="First">
-            <input type="text" id="lastName" name="lastName" required placeholder="Last">
-        </div><br>
+<form action="/admin/add-booking" method="POST">
+  <label for="firstName">First Name</label>
+  <input type="text" id="firstName" name="firstName" required><br><br>
 
-      <label for="roomNumber">Room Number:</label>
-      <input type="text" id="roomNumber" name="roomNumber" pattern="[A-Za-z]\d{3}" title="Room number should be in the format 'Letter followed by three digits'" required><br><br>
+  <label for="lastName">Last Name</label>
+  <input type="text" id="lastName" name="lastName" required><br><br>
 
-      <label for="checkIn">Check-in Date:</label>
-      <input type="date" id="checkIn" name="checkIn" required><br><br>
+  <label for="roomNumber">Room Number:</label>
+  <input type="text" id="roomNumber" name="roomNumber" pattern="[A-Za-z]\d{3}" title="Room number should be in the format 'Letter followed by three digits'" required><br><br>
 
-      <label for="checkOut">Check-out Date:</label>
-      <input type="date" id="checkOut" name="checkOut" required><br><br>
+   <label for="checkIn">Check-in Date:</label>
+    <input type="date" id="checkIn" name="checkIn" required><br><br>
 
-      <label for="adultPax">Pax:</label>
-        <div class="mini-container">
-          <input type="number" id="adultPax" placeholder="Adult" name="adultPax"><br><br>
-          <input type="number" id="kidPax" placeholder="Kid" name="kidPax"><br><br>
+    <label for="checkOut">Check-out Date:</label>
+    <input type="date" id="checkOut" name="checkOut" required><br><br>
 
-        </div><br>
+    <label for="adultPax">Adult Pax:</label>
+    <input type="number" id="adultPax" name="adultPax" required><br><br>
 
-      <label for="roomType">Room Type:</label>
-      <select id="roomType" name="roomType" required>
-          <option value="Deluxe Queen">Deluxe Queen</option>
-          <option value="Deluxe Twin">Deluxe Twin</option>
-          <option value="Premiere">Premiere</option>
-          <option value="Dormitory">Dormitory</option>
-      </select><br><br>
+    <label for="kidPax">Kid Pax:</label>
+    <input type="number" id="kidPax" name="kidPax" required><br><br>
+
+    <label for="roomType">Room Type:</label>
+    <select id="roomType" name="roomType" required>
+        <option value="Deluxe Queen">Deluxe Queen</option>
+        <option value="Deluxe Twin">Deluxe Twin</option>
+        <option value="Premiere">Premiere</option>
+        <option value="Dormitory">Dormitory</option>
+    </select><br><br>
 
 
-    <button type="submit">Add Booking</button>
-  </form>
-</div>
+  <button type="submit">Add Booking</button>
+</form>
