@@ -456,6 +456,7 @@ server.get('/admin/edit-booking/:id', isAuthenticated, async (req, res) => {
         await mongoClient.connect();
         const db = mongoClient.db(databaseName);
         const booking = await db.collection(reservationCollection).findOne({ _id: new ObjectId(bookingId) });
+        
         if (booking) {
             res.render('admin-edit-booking', {
                 layout: 'index',
@@ -507,6 +508,35 @@ server.post('/admin/edit-booking/:id', isAuthenticated, async (req, res) => {
         await mongoClient.close();
     }
 });
+
+server.post('/admin-delete-booking/:id', async (req, res) => {
+    if (!req.session.isAuthenticated) {
+        return res.redirect('/');
+    }
+
+    try {
+        await mongoClient.connect();
+        const db = mongoClient.db(databaseName);
+        const bookingsCollection = db.collection(reservationCollection);
+
+        // Delete the booking by ID
+        const result = await bookingsCollection.deleteOne({ _id: new ObjectId(req.params.id) });
+
+        if (result.deletedCount === 1) {
+            console.log(`Booking with ID ${req.params.id} deleted successfully.`);
+        } else {
+            console.log(`No booking found with ID ${req.params.id}.`);
+        }
+
+        res.redirect('/admin-bookings'); // Redirect back to the bookings list
+    } catch (error) {
+        console.error('Error deleting booking:', error);
+        res.status(500).send('Error deleting booking');
+    } finally {
+        await mongoClient.close();
+    }
+});
+
 
 
 // Booking Details Route

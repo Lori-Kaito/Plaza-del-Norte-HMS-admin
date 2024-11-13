@@ -1,3 +1,15 @@
+<div style="max-width: 600px; margin: 0 auto;">
+    <!-- Original Information Section -->
+    <h2>Original Booking Information</h2>
+    <p><strong>Guest Name:</strong> {{booking.guestName}}</p>
+    <p><strong>Room Type:</strong> {{booking.roomType}}</p>
+    <p><strong>Check-In:</strong> {{booking.checkIn}}</p>
+    <p><strong>Check-Out:</strong> {{booking.checkOut}}</p>
+    <p><strong>Number of Adults:</strong> {{booking.adultPax}}</p>
+    <p><strong>Number of Kids:</strong> {{booking.kidPax}}</p>
+    
+    <hr>
+
 <h1>Edit Booking</h1>
 <form action="/admin/edit-booking/{{booking._id}}" method="POST">
     <label for="guestID">Guest ID:</label>

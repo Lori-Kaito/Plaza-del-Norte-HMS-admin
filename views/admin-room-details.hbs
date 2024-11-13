@@ -1,5 +1,15 @@
 <h1>Room Details</h1>
 
+<!-- Room Type Filter -->
+    <label for="roomTypeFilter">Filter by Room Type:</label>
+    <select id="roomTypeFilter" onchange="filterRooms()">
+        <option value="">All</option>
+        <option value="DQ">Deluxe Queen</option>
+        <option value="DT">Deluxe Twin</option>
+        <option value="PRMR">Premiere</option>
+        <option value="DORM">Dormitory</option>
+    </select>
+
 <table>
     <thead>
         <tr style="border-spacing: 15px;"> <!-- Add inline style for spacing -->
@@ -8,9 +18,9 @@
             <th style="padding: 10px;">Status</th>
         </tr>
     </thead>
-    <tbody>
-        {{#each rooms}}
-        <tr>
+    <tbody id="roomDetailsTable">
+            {{#each rooms}}
+            <tr data-room-type="{{this.roomType}}">
             <td>{{this.roomNum}}</td>
             <td>{{this.roomType}}</td>
             <td>{{this.status}}</td>
@@ -18,3 +28,19 @@
         {{/each}}
     </tbody>
 </table>
+
+<script>
+    function filterRooms() {
+        const filterValue = document.getElementById('roomTypeFilter').value;
+        const rows = document.querySelectorAll('#roomDetailsTable tr');
+
+        rows.forEach(row => {
+            const roomType = row.getAttribute('data-room-type');
+            if (filterValue === '' || roomType === filterValue) {
+                row.style.display = ''; // Show the row
+            } else {
+                row.style.display = 'none'; // Hide the row
+            }
+        });
+    }
+</script>
