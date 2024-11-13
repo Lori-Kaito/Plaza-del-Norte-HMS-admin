@@ -1,39 +1,25 @@
 <div class="dashboard-page">
 <h1>Admin Dashboard</h1>
-    <div class="dashboard-grid">
-            <!-- <h2>Occupancy</h2> -->
-                <!-- <h3>Total Rooms: {{totalRooms}}</h3> -->
-                    <div class="card occupied">
-                        <div class="status-container">
-                            <div class="circle-occupied"></div>
-                            <h2>Occupied</h2>
-                        </div>
-                            <div class="inner-card">
-                                {{#each occupiedRoomsByType}}
-                                    <p>{{@key}}: {{this}}</p>
-                                {{/each}}
-                            </div>
-                    </div>
 
-                    <div class="card vacant">
-                        <div class="status-container">
-                            <div class="circle-vacant"></div>
-                            <h2>Vacant</h2>
-                        </div>
-                            {{#each vacantRoomsByType}}
-                                <p>{{@key}}: {{this}}</p>
-                            {{/each}}
-                    </div>
+<h2>Occupancy</h2>
+<div>
+    <h3>Total Rooms: {{totalRooms}}</h3>
 
-                    <div class="card nr">
-                        <div class="status-container">
-                            <div class="circle-nr"></div>
-                            <h2>Not Ready</h2>
-                        </div>
-                            {{#each notReadyRoomsByType}}
-                                <p>{{@key}}: {{this}}</p>
-                            {{/each}}
-                    </div>  
+    <h3>Occupied Room Types</h3>
+    {{#each occupiedRoomsByType}}
+        <p>{{@key}}: {{this}}</p>
+    {{/each}}
+
+    <h3>Vacant Room Types</h3>
+    {{#each vacantRoomsByType}}
+        <p>{{@key}}: {{this}}</p>
+    {{/each}}
+
+    <h3>Not Ready Room Types</h3>
+    {{#each notReadyRoomsByType}}
+        <p>{{@key}}: {{this}}</p>
+    {{/each}}
+</div>
 
         <div class="card revenue">
             <h2>Revenue Comparison</h2>
