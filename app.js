@@ -448,8 +448,6 @@ server.post('/admin-add-booking', async (req, res) => {
     }
 });
 
-
-
 // Bookings Route
 server.get('/admin-bookings', async (req, res) => {
     if (!req.session.isAuthenticated) { // Check for isAuthenticated
@@ -481,6 +479,38 @@ server.get('/admin-bookings', async (req, res) => {
         res.status(500).send('Error fetching bookings');
     } finally {
         await mongoClient.close(); // Ensure the connection is closed
+    }
+});
+
+// Add Done Button Functionality
+server.post('/admin-done-booking/:id', async (req, res) => {
+    if (!req.session.isAuthenticated) {
+        return res.redirect('/');
+    }
+
+    try {
+        await mongoClient.connect();
+        const db = mongoClient.db(databaseName);
+        const bookingsCollection = db.collection(reservationCollection);
+
+        // Update the booking status to "Done"
+        const result = await bookingsCollection.updateOne(
+            { _id: new ObjectId(req.params.id) },
+            { $set: { status: "Done" } }
+        );
+
+        if (result.modifiedCount === 1) {
+            console.log(`Booking with ID ${req.params.id} marked as Done.`);
+        } else {
+            console.error(`Failed to mark booking with ID ${req.params.id} as Done.`);
+        }
+
+        res.redirect('/admin-bookings'); // Redirect back to bookings page
+    } catch (error) {
+        console.error('Error marking booking as Done:', error);
+        res.status(500).send('Error marking booking as Done');
+    } finally {
+        await mongoClient.close();
     }
 });
 

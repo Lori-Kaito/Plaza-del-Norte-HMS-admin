@@ -27,6 +27,7 @@
                 <th>Check In</th>
                 <th>Check Out</th>
                 <th>Details</th>
+                <th>Booking Status</th>
             </tr>
         </thead>
         <tbody>
@@ -34,7 +35,7 @@
                 <tr>
                     <td>{{this._id}}</td>
                     <td>{{this.guestID}}</td>
-                     <td>{{this.roomNum}}</td>
+                    <td>{{this.roomNum}}</td>
                     <td>{{this.adultPax}}</td>
                     <td>{{this.kidPax}}</td>
                     <td>{{this.roomType}}</td>
@@ -45,17 +46,32 @@
                         hour: '2-digit', minute: '2-digit', hour12: true }));
                 </script>
             </td>
-            <td>
-                <script>
-                    document.write(new Date("{{this.checkOut}}").toLocaleString('en-PH', { 
-                        weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', 
-                        hour: '2-digit', minute: '2-digit', hour12: true }));
-                </script>
-            </td>
+                    <td>
+                        <script>
+                            document.write(new Date("{{this.checkOut}}").toLocaleString('en-PH', { 
+                                weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', 
+                                hour: '2-digit', minute: '2-digit', hour12: true }));
+                        </script>
+                    </td>
                     <td>
                         <a href="/admin-booking-details/{{this._id}}">View Details</a>
                         <a href="/admin-edit-booking/{{this._id}}">Edit</a>
                  <a href="javascript:void(0);" onclick="deleteBooking('{{this._id}}')" style="color: red; text-decoration: underline;">Delete</a>
+                    </td>
+                    <td>{{this.status}}</td>
+                    <td>
+                    {{#ifEquals this.status "Pending"}}
+                    <form method="POST" action="/admin-done-booking/{{this._id}}" style="display:inline;">
+                        <button 
+                            type="submit" 
+                            class="btn btn-success" 
+                            onclick="return confirm('Are you sure you want to mark this booking as Done?');">
+                            Done
+                        </button>
+                    </form>
+                    {{else}}
+                    <button type="button" class="btn btn-secondary" disabled>Completed</button>
+                    {{/ifEquals}}
                     </td>
                 </tr>
             {{/each}}
