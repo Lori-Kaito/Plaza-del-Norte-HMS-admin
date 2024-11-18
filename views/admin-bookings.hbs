@@ -3,6 +3,14 @@
 <h1>{{title}}</h1>
 
 {{!-- Booking Filter Form --}}
+<form method="GET" action="/admin-bookings" style="margin-bottom: 20px;">
+    <label for="sort">Sort By:</label>
+    <select id="sort" name="sort" onchange="this.form.submit()">
+        <option value="new" {{#ifEquals sort "new"}}selected{{/ifEquals}}>Recent</option>
+        <option value="old" {{#ifEquals sort "old"}}selected{{/ifEquals}}>Old to New</option>
+    </select>
+</form>
+
 <form method="GET" action="/admin-bookings">
     <label for="startDate">Start Date:</label>
     <input type="date" name="startDate" required>

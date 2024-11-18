@@ -454,7 +454,7 @@ server.get('/admin-bookings', async (req, res) => {
         return res.redirect('/'); // Redirect to login if not authenticated
     }
 
-    const { startDate, endDate } = req.query;
+    const { startDate, endDate, sort } = req.query;
 
     try {
         await mongoClient.connect();
@@ -468,11 +468,31 @@ server.get('/admin-bookings', async (req, res) => {
             query.checkIn = { $gte: new Date(startDate) };
         }
         if (endDate) {
-            query.checkOut = { $lte: new Date(endDate) };
+            query.checkOut = { ...query.checkOut, $lte: new Date(endDate) };
         }
 
-        const bookings = await collection.find(query).toArray();
-        res.render('admin-bookings', { layout: 'index', title: 'Bookings', bookings, username: req.session.username });
+        // Determine the sorting order (includes time as part of the Date object)
+        let sortOrder;
+        if (sort === "new") {
+            sortOrder = { checkIn: -1 }; // New to Old (latest date & time first)
+        } else if (sort === "old") {
+            sortOrder = { checkIn: 1 }; // Old to New (earliest date & time first)
+        } else {
+            sortOrder = {}; // Default sorting (no specific order)
+        }
+
+        // Fetch filtered and sorted bookings
+        const bookings = await collection.find(query).sort(sortOrder).toArray();
+
+        res.render('admin-bookings', {
+            layout: 'index',
+            title: 'Bookings',
+            bookings,
+            username: req.session.username,
+            sort, // Pass the sort parameter to the view
+            startDate,
+            endDate,
+        });
 
     } catch (error) {
         console.error('Error fetching bookings:', error);
@@ -675,13 +695,22 @@ server.get('/admin-room-details', async (req, res) => {
         return res.redirect('/'); // Redirect to login if not authenticated
     }
 
+    const { roomNum } = req.query; // Get the roomNum query parameter from the search form
+
     try {
         await mongoClient.connect();
         const db = mongoClient.db(databaseName);
         const collection = db.collection(roomCollection);
 
-        // Fetch all rooms
-        const rooms = await collection.find({}).toArray(); // Get all room details
+        let query = {};
+
+        // If roomNum is provided, filter by it
+        if (roomNum) {
+            query.roomNum = { $regex: `^${roomNum.trim()}$`, $options: 'i' }; // Case-insensitive exact match
+        }
+
+        // Fetch rooms based on the query
+        const rooms = await collection.find(query).toArray();
 
         res.render('admin-room-details', {
             layout: 'index',
@@ -695,6 +724,46 @@ server.get('/admin-room-details', async (req, res) => {
         res.status(500).send('Error fetching room details');
     } finally {
         await mongoClient.close(); // Ensure the connection is closed
+    }
+});
+
+server.post('/admin-room-status/:id', async (req, res) => {
+    if (!req.session.isAuthenticated) {
+        return res.redirect('/');
+    }
+
+    try {
+        await mongoClient.connect();
+        const db = mongoClient.db(databaseName);
+        const roomsCollection = db.collection(roomCollection);
+
+        const roomId = req.params.id;
+        const newStatus = req.body.status;
+
+        // Validate the status input
+        const validStatuses = ["VR", "VC", "OCC", "DND", "RS"];
+        if (!validStatuses.includes(newStatus)) {
+            return res.status(400).send('Invalid status value');
+        }
+
+        // Update the room status in the database
+        const result = await roomsCollection.updateOne(
+            { _id: new ObjectId(roomId) },
+            { $set: { status: newStatus } }
+        );
+
+        if (result.modifiedCount === 1) {
+            console.log(`Room with ID ${roomId} updated to status ${newStatus}.`);
+        } else {
+            console.error(`Failed to update room with ID ${roomId}.`);
+        }
+
+        res.redirect('/admin-room-details'); // Redirect back to room details page
+    } catch (error) {
+        console.error('Error updating room status:', error);
+        res.status(500).send('Error updating room status');
+    } finally {
+        await mongoClient.close();
     }
 });
 
