@@ -24,6 +24,8 @@
                 <option value="in-house">In-House</option>
             </select>
 
+
+
             <label for="startDate">Start Date:</label>
             <input type="date" id="startDate" name="startDate" required>
 
@@ -47,7 +49,7 @@
                         <th>Guest ID</th>
                         <th>Adult Pax</th>
                         <th>Kid Pax</th>
-                        <th>Room/s</th>
+                        <th>Room</th>
                         <th>Check In</th>
                         <th>Check Out</th>
                         <th>Status</th>
@@ -56,20 +58,43 @@
                 <body>
                     {{#each bookings}}
                         <tr>
-                            <td><!--{{this._id}}--> #0001</td>
-                            <td><!--{{this.guestID}}--> Trisha Valladolid</td>
-                            <td><!--{{this.adultPax}}-->2 </td>
-                            <td><!--{{this.kidPax}}--> 2 </td>
+                            <td><a href="/admin-booking-details/{{this._id}}">{{this._id}}</a></td>
+                            <td>{{this.guestID}}</td>
+                            <td>{{this.adultPax}}</td>
+                            <td>{{this.kidPax}}</td>
+                            <td><span class="room-type deluxe-queen-cell">{{this.roomNum}}</span></td>
                             <td>
-                            <!-- <span class="room-type {{this.roomType}}-cell">{{this.roomType}}</span> -->
-                                <span class="room-type deluxe-queen-cell">Deluxe Queen</span>
-
+                                <script>
+                                    document.write(new Date("{{this.checkIn}}").toLocaleString('en-PH', { 
+                                        weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', 
+                                        hour: '2-digit', minute: '2-digit', hour12: true }));
+                                </script>
                             </td>
-                            <td><!--{{this.checkIn}}--> October 5, 2022</td>
-                            <td><!--{{this.checkOut}}--> October 10, 2022</td>
                             <td>
-                                <span class="status confirmed-cell">Confirmed</span>
-                            <!--    <span class="status {{this.status}}-cell">{{this.status}}</span> -->
+                                <script>
+                                    document.write(new Date("{{this.checkOut}}").toLocaleString('en-PH', { 
+                                        weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', 
+                                        hour: '2-digit', minute: '2-digit', hour12: true }));
+                                </script>
+                            </td>
+                            <td>
+                                <span class="status confirmed-cell">{{this.status}}</span>
+                             </td>
+
+                            <td class="status-actions">
+                                {{#ifEquals this.status "Pending"}}
+                                    <form method="POST" action="/admin-done-booking/{{this._id}}" style="display:inline;">
+                                    <button class="done-btn"
+                                        type="submit" 
+                                        class="btn btn-success" 
+                                        onclick="return confirm('Are you sure you want to mark this booking as Done?');">
+                                        Done
+                                    </button>
+                                </form>
+                                {{else}}
+                                    <span class="completed-label">Completed</span>
+                                {{/ifEquals}}
+                               
                             </td>
                         </tr>
                     {{/each}}
