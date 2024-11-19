@@ -5,7 +5,6 @@
     position: relative;
     padding: 0;
     color: #222222;
-    background-color: #cecece;
 
 }
 
@@ -53,6 +52,8 @@
     flex-direction: row;
     height: 100vh;
     gap: 20px;
+    background-color: #cecece;
+
 }
 
 .contents {
@@ -113,7 +114,9 @@ nav svg {
     align-items: center;     
     justify-content: center; 
     text-align: center;
-    height: 100vh;           
+    height: 100vh;      
+    background-color: #cecece;
+     
 }
 
 
@@ -224,6 +227,9 @@ nav svg {
 -- PAYMENT PAGE STYLES --
 -----------------------
 */
+.payment-page {
+    background-color: #cecece;
+}
 
 .payment-page h1 {
     text-transform: uppercase;
@@ -300,6 +306,9 @@ nav svg {
 -- DASHBOARD STYLES --
 -----------------------
 */
+.dashboard-page {
+    background-color: #cecece;
+}
  
 .dashboard-grid {
     display: grid;
@@ -452,3 +461,215 @@ nav svg {
 -- BOOKING STYLES --
 -----------------------
 */
+
+/* body */
+.booking-page {
+    padding-right: 15px;
+    margin-top: 0;
+    padding-top: 0;
+    background-color: #cecece; 
+
+
+}
+
+
+/* bookings title */
+.bookings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* room legend */
+.room-legend {
+    background-color: white; 
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    max-width:  220px;
+    text-align: left;
+    font-size: small;
+}
+
+.room-legend h3 {
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+
+.room-legend ul {
+    list-style: none;
+    padding: 0px;
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping for two columns */
+    margin-right: 0px;
+}
+
+.room-legend li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    width: 50%; /* Each item takes up half the width */
+}
+
+.legend-box {
+    width: 15px;
+    height: 15px;
+    border-radius: 3px;
+    margin-right: 3px;
+}
+
+/* room colors */
+.deluxe-queen,
+.deluxe-queen-cell {
+    background-color: #d8a9d9; /* purple */
+}
+
+.premiere,
+.premiere-cell {
+    background-color: #c1e0f7; /* blue */
+}
+
+.deluxe-twin,
+.deluxe-twin-cell {
+    background-color: #f4c991; /* orange */
+}
+
+.dormitory,
+.dormitory-cell {
+    background-color: #f1e574; /* yellow */
+}
+
+/* table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #E6F8E7; 
+}
+
+/* filter form */
+.filter-form {
+    display: flex; 
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.filter-form label {
+    margin: 20px;
+}
+.filter-form input[type="date"],
+.filter-form select {
+    padding: 5px;
+    margin-right: 5px;
+}
+
+.filter-form input[type="text"],
+.filter-form button {
+    padding: 10px;
+    margin-right: 10px;
+}
+
+.search-bar-container {
+    display: flex; 
+    align-items: center;
+    margin-left: 400px;
+    
+}
+
+.filter-form input[type="text"] {
+    margin-right: 0; 
+}
+
+/* create booking button */
+.create-booking {
+    background-color: #009DFF; 
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: auto;
+}
+
+/* main section */
+section {
+    background-color: white; 
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* room type & status */
+.room-type,
+.status {
+    display: inline-block;
+    padding: 5px 10px; 
+    border-radius: 15px; 
+    font-weight: bold; 
+}
+
+/* status cells */
+.confirmed-cell {
+    background-color: #B6E3FF; /* blue */
+}
+.cancelled-cell {
+    background-color: #FFCBCB; /* red */
+}
+.pending-cell {
+    background-color: #C5E3BA; /* green */
+}
+.rebooked-cell {
+    background-color: #DFDDDD; /* grey */
+}
+
+/* done/completed column*/
+.status-actions {
+  text-align: center;
+  padding: 10px;
+}
+
+/* "Done" button */
+.status-actions .done-btn {
+  background-color: #f0f0f0; 
+  border: 1px solid #cccccc; 
+  color: #666666; 
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.status-actions .done-btn:hover {
+  background-color: #d9edf7; 
+  color: #31708f; 
+}
+
+/* "Completed" label */
+.status-actions .completed-label {
+  background-color: #dff0d8; 
+  border: 1px solid #c3e6cb; 
+  color: #3c763d; 
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: bold;
+  display: inline-block;
+}
+
+/* checkmark icon for "Completed" */
+.status-actions .completed-label::before {
+  content: "✔ "; 
+  color: #3c763d;
+  font-size: 16px;
+  margin-right: 5px;
+}
