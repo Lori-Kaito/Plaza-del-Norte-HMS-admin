@@ -476,15 +476,19 @@ server.get('/admin-bookings', async (req, res) => {
             query.checkOut = { ...query.checkOut, $lte: new Date(endDate) };
         }
 
-        // Determine the sorting order (includes time as part of the Date object)
-        let sortOrder;
-        if (sort === "new") {
-            sortOrder = { checkIn: -1 }; // New to Old (latest date & time first)
-        } else if (sort === "old") {
-            sortOrder = { checkIn: 1 }; // Old to New (earliest date & time first)
-        } else {
-            sortOrder = {}; // Default sorting (no specific order)
-        }
+         // Determine the sorting order (includes time as part of the Date object)
+         let sortOrder;
+         if (sort === "new") {
+             sortOrder = { checkIn: -1 }; // New to Old (latest date & time first)
+         } else if (sort === "old") {
+             sortOrder = { checkIn: 1 }; // Old to New (earliest date & time first)
+         } else if (sort === "pending") {
+             sortOrder = { status: -1 }; // Sort by "Done" first
+         } else if (sort === "done") {
+             sortOrder = { status: 1 }; // Sort by "Pending" first
+         } else {
+             sortOrder = {}; // Default sorting (no specific order)
+         }
 
         // Fetch filtered and sorted bookings
         const bookings = await collection.find(query).sort(sortOrder).toArray();
@@ -562,6 +566,7 @@ server.get('/admin-edit-booking/:id', async (req, res) => {
             layout: 'index',
             title: 'Edit Booking',
             booking, // Pass booking data to the view
+            username: req.session.username,
         });
     } catch (error) {
         console.error('Error fetching booking details for editing:', error);
@@ -583,21 +588,45 @@ server.post('/admin-edit-booking/:id', async (req, res) => {
         const bookingsCollection = db.collection(reservationCollection);
 
         // Extract updated fields from the form
-        const { guestName, roomType, roomNum, checkIn, checkOut, adultPax, kidPax } = req.body;
+        const { firstName, lastName, roomType, roomNum, checkIn, checkOut, adultPax, kidPax } = req.body;
+
+        // Combine firstName and lastName into guestName
+        const guestName = `${firstName.trim()} ${lastName.trim()}`.trim();
 
         // Validate roomNum format
         const roomNumPattern = /^[A-Z][0-9]{3}$/;
         const trimmedRoomNum = roomNum.trim().toUpperCase();
         if (!roomNumPattern.test(trimmedRoomNum)) {
-            throw new Error('Invalid room number format.');
+            throw new Error('Invalid room number format. Room number must follow the format A101.');
         }
 
+        // Map roomType acronyms to full names
+        const roomTypeMapping = {
+            DQ: 'Deluxe Queen',
+            DT: 'Deluxe Twin',
+            PRMR: 'Premiere',
+            DORM: 'Dormitory',
+        };
         const fullRoomType = roomTypeMapping[roomType] || roomType;
+
         // Validate check-in and check-out dates
         const checkInDate = new Date(checkIn);
         const checkOutDate = new Date(checkOut);
+        if (isNaN(checkInDate) || isNaN(checkOutDate)) {
+            throw new Error('Invalid date format. Please provide valid check-in and check-out dates.');
+        }
         if (checkInDate >= checkOutDate) {
             throw new Error('Check-in date must be earlier than check-out date.');
+        }
+
+        // Validate adultPax and kidPax
+        const adultPaxNum = parseInt(adultPax, 10);
+        const kidPaxNum = parseInt(kidPax, 10);
+        if (isNaN(adultPaxNum) || adultPaxNum <= 0) {
+            throw new Error('Number of adults must be a positive integer.');
+        }
+        if (isNaN(kidPaxNum) || kidPaxNum < 0) {
+            throw new Error('Number of kids must be a non-negative integer.');
         }
 
         // Update booking in the database
@@ -605,13 +634,15 @@ server.post('/admin-edit-booking/:id', async (req, res) => {
             { _id: new ObjectId(req.params.id) },
             {
                 $set: {
-                    guestName: guestName.trim(),
+                    firstName: firstName.trim(),
+                    lastName: lastName.trim(),
+                    guestName: guestName,
                     roomType: fullRoomType,
                     roomNum: trimmedRoomNum,
                     checkIn: checkInDate,
                     checkOut: checkOutDate,
-                    adultPax: parseInt(adultPax, 10),
-                    kidPax: parseInt(kidPax, 10),
+                    adultPax: adultPaxNum,
+                    kidPax: kidPaxNum,
                 },
             }
         );
@@ -629,6 +660,7 @@ server.post('/admin-edit-booking/:id', async (req, res) => {
         await mongoClient.close();
     }
 });
+
 
 
 server.post('/admin-delete-booking/:id', async (req, res) => {

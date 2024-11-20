@@ -30,8 +30,12 @@
         <h1 class="edit-booking-header">Edit Booking</h1>
         <form class="edit-booking-form" method="POST" action="/admin-edit-booking/{{booking._id}}">
             <div class="edit-booking-item">
-                <label class="edit-booking-label" for="guestName">Guest Name:</label>
-                <input class="edit-booking-input" type="text" id="guestName" name="guestName" value="{{booking.guestName}}" required>
+                <label class="edit-booking-label" for="firstName">First Name:</label>
+                <input class="edit-booking-input" type="text" id="firstName" name="firstName" value="{{booking.firstName}}" required>
+            </div>
+            <div class="edit-booking-item">
+                <label class="edit-booking-label" for="lastName">Last Name:</label>
+                <input class="edit-booking-input" type="text" id="lastName" name="lastName" value="{{booking.lastName}}" required>
             </div>
             <div class="edit-booking-item">
                 <label class="edit-booking-label" for="roomType">Room Type:</label>
@@ -64,8 +68,15 @@
             </div>
             <div class="edit-booking-buttons">
                 <button class="edit-booking-button save-button" type="submit">Save Changes</button>
-                <button class="edit-booking-button delete-button" type="button">Delete Booking</button>
             </div>
         </form>
     </div>
 </div>
+
+<script>
+    function confirmDelete(bookingId) {
+        if (confirm("Are you sure you want to delete this booking?")) {
+            window.location.href = `/admin-delete-booking/${bookingId}`;
+        }
+    }
+</script>

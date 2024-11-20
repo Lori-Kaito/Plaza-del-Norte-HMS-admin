@@ -20,6 +20,8 @@
         <select id="sort" name="sort" onchange="this.form.submit()">
         <option value="new" {{#ifEquals sort "new"}}selected{{/ifEquals}}>New to Old</option>
         <option value="old" {{#ifEquals sort "old"}}selected{{/ifEquals}}>Old to New</option>
+        <option value="done" {{#ifEquals sort "done"}}selected{{/ifEquals}}>Done</option>
+        <option value="pending" {{#ifEquals sort "pending"}}selected{{/ifEquals}}>Pending</option>
         </select>
 
             <label for="startDate">Start Date:</label>
