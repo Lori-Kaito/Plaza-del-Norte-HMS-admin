@@ -55,8 +55,18 @@
                             <td><a href="/admin-booking-details/{{this._id}}">{{this._id}}</a></td>
                             <td>{{this.guestID}}</td>
                             <td>{{this.adultPax}}</td>
-                            <td>{{this.kidPax}}</td>
-                            <td><span class="room-type deluxe-queen-cell">{{this.roomNum}}</span></td>
+                            <td>{{this.kidPax}}</td>                            
+                            <td>
+                                <span class="room-type 
+                                    {{#ifEquals this.roomType "Deluxe Queen"}}deluxe-queen-cell
+                                    {{else ifEquals this.roomType "Premiere"}}premiere-cell
+                                    {{else ifEquals this.roomType "Deluxe Twin"}}deluxe-twin-cell
+                                    {{else ifEquals this.roomType "Dormitory"}}dormitory-cell
+                                    {{/ifEquals}}">
+                                    {{this.roomNum}}
+                                </span>
+                            </td>                            
+                            
                             <td>
                                 <script>
                                     document.write(new Date("{{this.checkIn}}").toLocaleString('en-PH', { 
