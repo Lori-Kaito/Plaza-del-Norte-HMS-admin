@@ -384,7 +384,19 @@ server.post('/admin-add-booking', async (req, res) => {
         const roomsCollection = db.collection(roomCollection); // Access roomCollection
 
         // Extract data from the form submission
-        const { firstName, lastName, roomType, roomNum, checkInDate, checkInTime, checkOutDate, checkOutTime, adultPax, kidPax } = req.body;
+        const { 
+            firstName, 
+            lastName, 
+            roomType, 
+            roomNum, 
+            checkInDate, 
+            checkInTime, 
+            checkOutDate, 
+            checkOutTime, 
+            adultPax, 
+            kidPax, 
+            specialRequest 
+        } = req.body;
 
         // Combine date and time fields into Date objects
         const checkIn = new Date(`${checkInDate}T${checkInTime}`);
@@ -434,6 +446,7 @@ server.post('/admin-add-booking', async (req, res) => {
             checkOut, // Use combined checkOut value
             adultPax: adultPaxNum,
             kidPax: kidPaxNum,
+            specialRequest: specialRequest.trim() || 'None', // Default to 'None' if empty
             status: "Pending",
         };
 
