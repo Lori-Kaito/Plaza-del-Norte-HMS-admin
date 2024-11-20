@@ -1,45 +1,69 @@
 <div class="edit-booking-page">
-    <div class="edit-booking-container">        
-        <!-- Edit Form -->
-        <h1 class="edit-booking-header">Add Booking</h1>
-        <form class="edit-booking-form" method="POST" action="/admin-edit-booking/{{booking._id}}">
-            <div class="edit-booking-item">
-                <label class="edit-booking-label" for="guestName">Guest Name:</label>
-                <input class="edit-booking-input" type="text" id="guestName" name="guestName" value="{{booking.guestName}}" required>
-            </div>
-            <div class="edit-booking-item">
-                <label class="edit-booking-label" for="roomType">Room Type:</label>
-                <select class="edit-booking-select" id="roomType" name="roomType" required>
-                    <option value="DQ" {{#ifEquals booking.roomType "Deluxe Queen"}}selected{{/ifEquals}}>Deluxe Queen</option>
-                    <option value="DT" {{#ifEquals booking.roomType "Deluxe Twin"}}selected{{/ifEquals}}>Deluxe Twin</option>
-                    <option value="PRMR" {{#ifEquals booking.roomType "Premiere"}}selected{{/ifEquals}}>Premiere</option>
-                    <option value="DORM" {{#ifEquals booking.roomType "Dormitory"}}selected{{/ifEquals}}>Dormitory</option>
-                </select>
-            </div>
-            <div class="edit-booking-item">
-                <label class="edit-booking-label" for="roomNum">Room Number:</label>
-                <input class="edit-booking-input" type="text" id="roomNum" name="roomNum" value="{{booking.roomNum}}" required>
-            </div>
-            <div class="edit-booking-item">
-                <label class="edit-booking-label" for="checkIn">Check-In:</label>
-                <input class="edit-booking-input" type="datetime-local" id="checkIn" name="checkIn" value="{{booking.checkIn}}" required>
-            </div>
-            <div class="edit-booking-item">
-                <label class="edit-booking-label" for="checkOut">Check-Out:</label>
-                <input class="edit-booking-input" type="datetime-local" id="checkOut" name="checkOut" value="{{booking.checkOut}}" required>
-            </div>
-            <div class="edit-booking-item">
-                <label class="edit-booking-label" for="adultPax">Number of Adults:</label>
-                <input class="edit-booking-input" type="number" id="adultPax" name="adultPax" value="{{booking.adultPax}}" min="1" required>
-            </div>
-            <div class="edit-booking-item">
-                <label class="edit-booking-label" for="kidPax">Number of Kids:</label>
-                <input class="edit-booking-input" type="number" id="kidPax" name="kidPax" value="{{booking.kidPax}}" min="0" required>
-            </div>
-            <div class="edit-booking-buttons">
-                <button class="edit-booking-button save-button" type="submit">Save Changes</button>
-                <button class="edit-booking-button delete-button" type="button">Delete Booking</button>
-            </div>
-        </form>
-    </div>
+  <div class="edit-booking-container">   
+    <!-- Edit Form -->
+    <h1 class="edit-booking-header">Add Booking</h1>  
+    <form class="edit-booking-form" action="/admin-add-booking" method="POST">
+        <!-- Name -->
+        <div class="edit-booking-item">
+          <label class="edit-booking-label" for="firstName">Full Name:</label>
+            <div class="mini-container">
+                <input class="edit-booking-input" type="text" id="firstName" name="firstName" required placeholder="First">
+                <input class="edit-booking-input" type="text" id="lastName" name="lastName" required placeholder="Last">
+            </div><br>
+        </div>
+        <!-- Room Num -->
+        <div class="edit-booking-item">
+          <label class="edit-booking-label" for="roomNum">Room Number:</label>
+          <input
+              class="edit-booking-input"
+              type="text"
+              id="roomNum"
+              name="roomNum"
+              placeholder="Enter room number (e.g., A101)"
+              required>
+        </div>
+        <!-- Room Type -->
+        <div class="edit-booking-item">
+          <label class="edit-booking-label" for="roomType">Room Type:</label>
+          <select class="edit-booking-select" id="roomType" name="roomType" required>
+              <option value="Deluxe Queen">Deluxe Queen</option>
+              <option value="Deluxe Twin">Deluxe Twin</option>
+              <option value="Premiere">Premiere</option>
+              <option value="Dormitory">Dormitory</option>
+          </select><br><br>
+        </div>
+        <!-- Adult Pax -->
+        <div class="edit-booking-item"> 
+          <label class="edit-booking-label" for="adultPax">Number of Adults:</label>
+          <input class="edit-booking-input" type="number" id="adultPax" name="adultPax" min="1" placeholder="Enter number of adults" required><br><br>
+        </div>
+        <!-- Kid Pax -->
+        <div class="edit-booking-item"> 
+          <label class="edit-booking-label" for="kidPax">Number of Kids:</label>
+          <input class="edit-booking-input" type="number" id="kidPax" name="kidPax" min="0" placeholder="Enter number of kids" required><br><br>
+        </div>
+        <!-- Check In -->
+        <div class="edit-booking-item">
+          <label class="edit-booking-label" for="checkIn">Check-In Date:</label>
+          <input class="edit-booking-input" type="date" id="checkInDate" name="checkInDate" required><br><br>
+        </div>
+        <div class="edit-booking-item">
+          <label class="edit-booking-label" for="checkInTime">Check-In Time:</label>
+          <input class="edit-booking-input" type="time" id="checkInTime" name="checkInTime" required><br><br>
+        </div>
+        <!-- Check Out-->
+        <div class="edit-booking-item">
+          <label class="edit-booking-label" for="checkOut">Check-Out Date:</label>
+          <input class="edit-booking-input" type="date" id="checkOutDate" name="checkOutDate" required><br><br>
+        </div>
+        <div class="edit-booking-item"> 
+          <label class="edit-booking-label" for="checkOutTime">Check-Out Time:</label>
+          <input class="edit-booking-input" type="time" id="checkOutTime" name="checkOutTime" required><br>
+        </div>
+        
+        <div class="edit-booking-buttons">
+          <button class="edit-booking-button save-button" type="submit">Add Booking</button>
+        </div>
+    </form>
+  </div>
 </div>
