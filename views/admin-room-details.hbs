@@ -10,6 +10,12 @@
         <option value="DORM">Dormitory</option>
     </select>
 
+<form method="GET" action="/admin-room-details" style="margin-bottom: 20px;">
+    <label for="roomNum">Search Room Number:</label>
+    <input type="text" id="roomNum" name="roomNum" placeholder="Enter Room Number">
+    <button type="submit">Search</button>
+</form>
+
 <table>
     <thead>
         <tr style="border-spacing: 15px;"> <!-- Add inline style for spacing -->
@@ -23,7 +29,17 @@
             <tr data-room-type="{{this.roomType}}">
             <td>{{this.roomNum}}</td>
             <td>{{this.roomType}}</td>
-            <td>{{this.status}}</td>
+            <td>
+            <form method="POST" action="/admin-room-status/{{this._id}}">
+                <select name="status" onchange="this.form.submit()">
+                    <option value="VR" {{#ifEquals this.status "VR"}}selected{{/ifEquals}}>Vacant Ready</option>
+                    <option value="VC" {{#ifEquals this.status "VC"}}selected{{/ifEquals}}>Vacant Clean</option>
+                    <option value="OCC" {{#ifEquals this.status "OCC"}}selected{{/ifEquals}}>Occupied</option>
+                    <option value="DND" {{#ifEquals this.status "DND"}}selected{{/ifEquals}}>Do Not Disturb</option>
+                    <option value="RS" {{#ifEquals this.status "RS"}}selected{{/ifEquals}}>Reserved</option>
+                </select>
+            </form>
+        </td>
         </tr>
         {{/each}}
     </tbody>

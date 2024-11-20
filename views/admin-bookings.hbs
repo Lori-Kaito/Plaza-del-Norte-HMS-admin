@@ -1,90 +1,119 @@
-{{!-- Layout and Title --}}
-{{!< layout index}}
-<h1>{{title}}</h1>
+<div class="booking-page">
+    <div class="bookings-header">
+        <h1>{{title}}</h1>
 
-{{!-- Booking Filter Form --}}
-<form method="GET" action="/admin-bookings">
-    <label for="startDate">Start Date:</label>
-    <input type="date" name="startDate" required>
+        <!-- Room Legend Box -->
+        <div class="room-legend">
+            <h3>Room Legend:</h3>
+            <ul>
+                <li><span class="legend-box deluxe-queen"></span> Deluxe Queen</li>
+                <li><span class="legend-box premiere"></span> Premiere</li>
+                <li><span class="legend-box deluxe-twin"></span> Deluxe Twin</li>
+                <li><span class="legend-box dormitory"></span> Dormitory</li>
+            </ul>
+        </div>
+    </div>
+    <!-- Booking Section: Filter Form and Booking List Table -->
+    <section>
+        <!-- Booking Filter Form -->
+        <form class="filter-form" method="GET" action="/admin-bookings">
+        <select id="sort" name="sort" onchange="this.form.submit()">
+        <option value="new" {{#ifEquals sort "new"}}selected{{/ifEquals}}>New to Old</option>
+        <option value="old" {{#ifEquals sort "old"}}selected{{/ifEquals}}>Old to New</option>
+        <option value="done" {{#ifEquals sort "done"}}selected{{/ifEquals}}>Done</option>
+        <option value="pending" {{#ifEquals sort "pending"}}selected{{/ifEquals}}>Pending</option>
+        </select>
 
-    <label for="endDate">End Date:</label>
-    <input type="date" name="endDate" required>
+            <label for="startDate">Start Date:</label>
+            <input type="date" id="startDate" name="startDate" required>
 
-    <button type="submit">Filter</button>
-</form>
+            <label for="endDate">End Date:</label>
+            <input type="date" id="endDate" name="endDate" required>
+            <button type="submit">Filter</button>
+            
+           <a href="/admin-add-booking" type="button" class="create-booking">Create Booking</a>
+        </form>
 
-{{!-- Booking List --}}
-{{#if bookings.length}}
-    <table>
-        <thead>
-            <tr>
-                <th>Booking ID</th>
-                <th>Guest ID</th>
-                <th>Room Number</th>
-                <th>Adult Pax</th>
-                <th>Kid Pax</th>
-                <th>Room Type</th>
-                <th>Check In</th>
-                <th>Check Out</th>
-                <th>Details</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{#each bookings}}
-                <tr>
-                    <td>{{this._id}}</td>
-                    <td>{{this.guestID}}</td>
-                     <td>{{this.roomNum}}</td>
-                    <td>{{this.adultPax}}</td>
-                    <td>{{this.kidPax}}</td>
-                    <td>{{this.roomType}}</td>
-                    <td>
-                <script>
-                    document.write(new Date("{{this.checkIn}}").toLocaleString('en-PH', { 
-                        weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', 
-                        hour: '2-digit', minute: '2-digit', hour12: true }));
-                </script>
-            </td>
-            <td>
-                <script>
-                    document.write(new Date("{{this.checkOut}}").toLocaleString('en-PH', { 
-                        weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', 
-                        hour: '2-digit', minute: '2-digit', hour12: true }));
-                </script>
-            </td>
-                    <td>
-                        <a href="/admin-booking-details/{{this._id}}">View Details</a>
-                        <a href="/admin-edit-booking/{{this._id}}">Edit</a>
-                 <a href="javascript:void(0);" onclick="deleteBooking('{{this._id}}')" style="color: red; text-decoration: underline;">Delete</a>
-                    </td>
-                </tr>
-            {{/each}}
-        </tbody>
-    </table>
-{{else}}
-    <p>No bookings found for the selected date range.</p>
-{{/if}}
+        <!-- Booking List Table -->
+        {{#if bookings.length}}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Guest ID</th>
+                        <th>Adult Pax</th>
+                        <th>Kid Pax</th>
+                        <th>Room</th>
+                        <th>Check In</th>
+                        <th>Check Out</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <body>
+                    {{#each bookings}}
+                        <tr>
+                            <td><a href="/admin-booking-details/{{this._id}}">{{this._id}}</a></td>
+                            <td>{{this.guestID}}</td>
+                            <td>{{this.adultPax}}</td>
+                            <td>{{this.kidPax}}</td>                            
+                            <td>
+                                <span class="room-type 
+                                    {{#ifEquals this.roomType "Deluxe Queen"}}deluxe-queen-cell
+                                    {{else ifEquals this.roomType "Premiere"}}premiere-cell
+                                    {{else ifEquals this.roomType "Deluxe Twin"}}deluxe-twin-cell
+                                    {{else ifEquals this.roomType "Dormitory"}}dormitory-cell
+                                    {{/ifEquals}}">
+                                    {{this.roomNum}}
+                                </span>
+                            </td>                            
+                            
+                            <td>
+                                <script>
+                                    document.write(new Date("{{this.checkIn}}").toLocaleString('en-PH', { 
+                                        weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', 
+                                        hour: '2-digit', minute: '2-digit', hour12: true }));
+                                </script>
+                            </td>
+                            <td>
+                                <script>
+                                    document.write(new Date("{{this.checkOut}}").toLocaleString('en-PH', { 
+                                        weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', 
+                                        hour: '2-digit', minute: '2-digit', hour12: true }));
+                                </script>
+                            </td>
+                            <td>
+                                <!--  <span class="status confirmed-cell">{{this.status}}</span> -->            
+                                <span class="status">{{this.status}}</span>
+                             </td>
 
-<script>
-    async function deleteBooking(bookingId) {
-        if (confirm('Are you sure you want to delete this booking?')) {
-            try {
-                const response = await fetch(`/admin-delete-booking/${bookingId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                if (response.ok) {
-                    alert('Booking deleted successfully.');
-                    window.location.reload(); // Reload the page to reflect changes
-                } else {
-                    alert('Failed to delete the booking.');
-                }
-            } catch (error) {
-                console.error('Error deleting booking:', error);
-                alert('An error occurred while trying to delete the booking.');
-            }
-        }
-    }
-</script>
+                            <td class="status-actions">
+                                {{#ifEquals this.status "Pending"}}
+                                    <form method="POST" action="/admin-done-booking/{{this._id}}" style="display:inline;">
+                                    <button class="done-btn"
+                                        type="submit" 
+                                        class="btn btn-success" 
+                                        onclick="return confirm('Are you sure you want to mark this booking as Done?');">
+                                        Done
+                                    </button>
+                                </form>
+                                {{else}}
+                                    <span class="completed-label">Completed</span>
+                                {{/ifEquals}}
+                               
+                            </td>
+                           <td class="action-links">
+                                <a href="/admin-booking-details/{{this._id}}" class="view-link">View</a>
+                                <a href="/admin-edit-booking/{{this._id}}" class="edit-link">Edit</a>
+                                <form method="POST" action="/admin-delete-booking/{{this._id}}" style="display:inline;">
+                                    <button type="submit" class="delete-link" onclick="return confirm('Are you sure you want to delete this booking?')">Delete</button>
+                                </form>
+                           </td>
+                        </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        {{else}}
+            <p>No bookings found for the selected date range.</p>
+        {{/if}}
+    </section>
+</div>

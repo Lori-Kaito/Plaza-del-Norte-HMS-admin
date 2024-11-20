@@ -1,44 +1,82 @@
-<div style="max-width: 600px; margin: 0 auto;">
-    <!-- Original Information Section -->
-    <h2>Original Booking Information</h2>
-    <p><strong>Guest Name:</strong> {{booking.guestName}}</p>
-    <p><strong>Room Type:</strong> {{booking.roomType}}</p>
-    <p><strong>Room Number:</strong> {{booking.roomNum}}</p>
-    <p><strong>Check-In:</strong> {{booking.checkIn}}</p>
-    <p><strong>Check-Out:</strong> {{booking.checkOut}}</p>
-    <p><strong>Number of Adults:</strong> {{booking.adultPax}}</p>
-    <p><strong>Number of Kids:</strong> {{booking.kidPax}}</p>
-    
-    <hr>
+<div class="edit-booking-page">
+    <div class="edit-booking-container">
+        <!-- Original Information Section -->
+        <div class="edit-booking-info">
+            <h2>Original Booking Information</h2>
+            <p><strong>Guest Name:</strong> {{booking.guestName}}</p>
+            <p><strong>Room Type:</strong> {{booking.roomType}}</p>
+            <p><strong>Room Number:</strong> {{booking.roomNum}}</p>
+            <p><strong>Check-In:</strong> 
+                <script>
+                    document.write(new Date("{{booking.checkIn}}").toLocaleString('en-PH', { 
+                        weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', 
+                        hour: '2-digit', minute: '2-digit', hour12: true }));
+                </script>
+            </p>
+            <p><strong>Check-Out:</strong> 
+                <script>
+                    document.write(new Date("{{booking.checkOut}}").toLocaleString('en-PH', { 
+                        weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', 
+                        hour: '2-digit', minute: '2-digit', hour12: true }));
+                </script>
+            </p>
+            <p><strong>Number of Adults:</strong> {{booking.adultPax}}</p>
+            <p><strong>Number of Kids:</strong> {{booking.kidPax}}</p>
+        </div>
 
-<h1>Edit Booking</h1>
-<!-- Edit Form -->
-    <form method="POST" action="/admin-edit-booking/{{booking._id}}">
-        <label for="guestName">Guest Name:</label>
-        <input type="text" id="guestName" name="guestName" value="{{booking.guestName}}" required>
+        <hr class="edit-booking-divider">
 
-        <label for="roomType">Room Type:</label>
-        <select id="roomType" name="roomType" required>
-            <option value="DQ" {{#ifEquals booking.roomType "Deluxe Queen"}}selected{{/ifEquals}}>Deluxe Queen</option>
-            <option value="DT" {{#ifEquals booking.roomType "Deluxe Twin"}}selected{{/ifEquals}}>Deluxe Twin</option>
-            <option value="PRMR" {{#ifEquals booking.roomType "Premiere"}}selected{{/ifEquals}}>Premiere</option>
-            <option value="DORM" {{#ifEquals booking.roomType "Dormitory"}}selected{{/ifEquals}}>Dormitory</option>
-        </select>
+        <!-- Edit Form -->
+        <h1 class="edit-booking-header">Edit Booking</h1>
+        <form class="edit-booking-form" method="POST" action="/admin-edit-booking/{{booking._id}}">
+            <div class="edit-booking-item">
+                <label class="edit-booking-label" for="firstName">First Name:</label>
+                <input class="edit-booking-input" type="text" id="firstName" name="firstName" value="{{booking.firstName}}" required>
+            </div>
+            <div class="edit-booking-item">
+                <label class="edit-booking-label" for="lastName">Last Name:</label>
+                <input class="edit-booking-input" type="text" id="lastName" name="lastName" value="{{booking.lastName}}" required>
+            </div>
+            <div class="edit-booking-item">
+                <label class="edit-booking-label" for="roomType">Room Type:</label>
+                <select class="edit-booking-select" id="roomType" name="roomType" required>
+                    <option value="DQ" {{#ifEquals booking.roomType "Deluxe Queen"}}selected{{/ifEquals}}>Deluxe Queen</option>
+                    <option value="DT" {{#ifEquals booking.roomType "Deluxe Twin"}}selected{{/ifEquals}}>Deluxe Twin</option>
+                    <option value="PRMR" {{#ifEquals booking.roomType "Premiere"}}selected{{/ifEquals}}>Premiere</option>
+                    <option value="DORM" {{#ifEquals booking.roomType "Dormitory"}}selected{{/ifEquals}}>Dormitory</option>
+                </select>
+            </div>
+            <div class="edit-booking-item">
+                <label class="edit-booking-label" for="roomNum">Room Number:</label>
+                <input class="edit-booking-input" type="text" id="roomNum" name="roomNum" value="{{booking.roomNum}}" required>
+            </div>
+            <div class="edit-booking-item">
+                <label class="edit-booking-label" for="checkIn">Check-In:</label>
+                <input class="edit-booking-input" type="datetime-local" id="checkIn" name="checkIn" value="{{booking.checkIn}}" required>
+            </div>
+            <div class="edit-booking-item">
+                <label class="edit-booking-label" for="checkOut">Check-Out:</label>
+                <input class="edit-booking-input" type="datetime-local" id="checkOut" name="checkOut" value="{{booking.checkOut}}" required>
+            </div>
+            <div class="edit-booking-item">
+                <label class="edit-booking-label" for="adultPax">Number of Adults:</label>
+                <input class="edit-booking-input" type="number" id="adultPax" name="adultPax" value="{{booking.adultPax}}" min="1" required>
+            </div>
+            <div class="edit-booking-item">
+                <label class="edit-booking-label" for="kidPax">Number of Kids:</label>
+                <input class="edit-booking-input" type="number" id="kidPax" name="kidPax" value="{{booking.kidPax}}" min="0" required>
+            </div>
+            <div class="edit-booking-buttons">
+                <button class="edit-booking-button save-button" type="submit">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
 
-        <label for="roomNum">Room Number:</label>
-        <input type="text" id="roomNum" name="roomNum" value="{{booking.roomNum}}" required>
-
-        <label for="checkIn">Check-In:</label>
-        <input type="datetime-local" id="checkIn" name="checkIn" value="{{booking.checkIn}}" required>
-
-        <label for="checkOut">Check-Out:</label>
-        <input type="datetime-local" id="checkOut" name="checkOut" value="{{booking.checkOut}}" required>
-
-        <label for="adultPax">Number of Adults:</label>
-        <input type="number" id="adultPax" name="adultPax" value="{{booking.adultPax}}" min="1" required>
-
-        <label for="kidPax">Number of Kids:</label>
-        <input type="number" id="kidPax" name="kidPax" value="{{booking.kidPax}}" min="0" required>
-
-        <button type="submit">Save Changes</button>
-    </form>
+<script>
+    function confirmDelete(bookingId) {
+        if (confirm("Are you sure you want to delete this booking?")) {
+            window.location.href = `/admin-delete-booking/${bookingId}`;
+        }
+    }
+</script>

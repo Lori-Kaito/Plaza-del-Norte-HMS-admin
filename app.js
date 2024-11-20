@@ -360,11 +360,15 @@ server.get('/admin-dashboard', async (req, res) => {
 
 
 // Admin Add Booking Route
-server.get('/admin/add-booking', (req, res) => {
+server.get('/admin-add-booking', (req, res) => {
     if (!req.session.isAuthenticated) {
         return res.redirect('/');
     }
-    res.render('admin-add-booking', { layout: 'index', title: 'Add Booking', username: req.session.username });
+    res.render('admin-add-booking', { 
+        layout: 'index', 
+        title: 'Add Booking', 
+        username: req.session.username,
+    });
 });
 
 // Handle Add Booking Form Submission
@@ -380,7 +384,19 @@ server.post('/admin-add-booking', async (req, res) => {
         const roomsCollection = db.collection(roomCollection); // Access roomCollection
 
         // Extract data from the form submission
-        const { firstName, lastName, roomType, roomNum, checkInDate, checkInTime, checkOutDate, checkOutTime, adultPax, kidPax } = req.body;
+        const { 
+            firstName, 
+            lastName, 
+            roomType, 
+            roomNum, 
+            checkInDate, 
+            checkInTime, 
+            checkOutDate, 
+            checkOutTime, 
+            adultPax, 
+            kidPax, 
+            specialRequest 
+        } = req.body;
 
         // Combine date and time fields into Date objects
         const checkIn = new Date(`${checkInDate}T${checkInTime}`);
@@ -430,6 +446,8 @@ server.post('/admin-add-booking', async (req, res) => {
             checkOut, // Use combined checkOut value
             adultPax: adultPaxNum,
             kidPax: kidPaxNum,
+            specialRequest: specialRequest.trim() || 'None', // Default to 'None' if empty
+            status: "Pending",
         };
 
         const result = await bookingsCollection.insertOne(newBooking);
@@ -448,15 +466,13 @@ server.post('/admin-add-booking', async (req, res) => {
     }
 });
 
-
-
 // Bookings Route
 server.get('/admin-bookings', async (req, res) => {
     if (!req.session.isAuthenticated) { // Check for isAuthenticated
         return res.redirect('/'); // Redirect to login if not authenticated
     }
 
-    const { startDate, endDate } = req.query;
+    const { startDate, endDate, sort } = req.query;
 
     try {
         await mongoClient.connect();
@@ -470,17 +486,73 @@ server.get('/admin-bookings', async (req, res) => {
             query.checkIn = { $gte: new Date(startDate) };
         }
         if (endDate) {
-            query.checkOut = { $lte: new Date(endDate) };
+            query.checkOut = { ...query.checkOut, $lte: new Date(endDate) };
         }
 
-        const bookings = await collection.find(query).toArray();
-        res.render('admin-bookings', { layout: 'index', title: 'Bookings', bookings, username: req.session.username });
+         // Determine the sorting order (includes time as part of the Date object)
+         let sortOrder;
+         if (sort === "new") {
+             sortOrder = { checkIn: -1 }; // New to Old (latest date & time first)
+         } else if (sort === "old") {
+             sortOrder = { checkIn: 1 }; // Old to New (earliest date & time first)
+         } else if (sort === "pending") {
+             sortOrder = { status: -1 }; // Sort by "Done" first
+         } else if (sort === "done") {
+             sortOrder = { status: 1 }; // Sort by "Pending" first
+         } else {
+             sortOrder = {}; // Default sorting (no specific order)
+         }
+
+        // Fetch filtered and sorted bookings
+        const bookings = await collection.find(query).sort(sortOrder).toArray();
+
+        res.render('admin-bookings', {
+            layout: 'index',
+            title: 'Bookings',
+            bookings,
+            username: req.session.username,
+            sort, // Pass the sort parameter to the view
+            startDate,
+            endDate,
+        });
 
     } catch (error) {
         console.error('Error fetching bookings:', error);
         res.status(500).send('Error fetching bookings');
     } finally {
         await mongoClient.close(); // Ensure the connection is closed
+    }
+});
+
+// Add Done Button Functionality
+server.post('/admin-done-booking/:id', async (req, res) => {
+    if (!req.session.isAuthenticated) {
+        return res.redirect('/');
+    }
+
+    try {
+        await mongoClient.connect();
+        const db = mongoClient.db(databaseName);
+        const bookingsCollection = db.collection(reservationCollection);
+
+        // Update the booking status to "Done"
+        const result = await bookingsCollection.updateOne(
+            { _id: new ObjectId(req.params.id) },
+            { $set: { status: "Done" } }
+        );
+
+        if (result.modifiedCount === 1) {
+            console.log(`Booking with ID ${req.params.id} marked as Done.`);
+        } else {
+            console.error(`Failed to mark booking with ID ${req.params.id} as Done.`);
+        }
+
+        res.redirect('/admin-bookings'); // Redirect back to bookings page
+    } catch (error) {
+        console.error('Error marking booking as Done:', error);
+        res.status(500).send('Error marking booking as Done');
+    } finally {
+        await mongoClient.close();
     }
 });
 
@@ -507,6 +579,7 @@ server.get('/admin-edit-booking/:id', async (req, res) => {
             layout: 'index',
             title: 'Edit Booking',
             booking, // Pass booking data to the view
+            username: req.session.username,
         });
     } catch (error) {
         console.error('Error fetching booking details for editing:', error);
@@ -528,21 +601,45 @@ server.post('/admin-edit-booking/:id', async (req, res) => {
         const bookingsCollection = db.collection(reservationCollection);
 
         // Extract updated fields from the form
-        const { guestName, roomType, roomNum, checkIn, checkOut, adultPax, kidPax } = req.body;
+        const { firstName, lastName, roomType, roomNum, checkIn, checkOut, adultPax, kidPax } = req.body;
+
+        // Combine firstName and lastName into guestName
+        const guestName = `${firstName.trim()} ${lastName.trim()}`.trim();
 
         // Validate roomNum format
         const roomNumPattern = /^[A-Z][0-9]{3}$/;
         const trimmedRoomNum = roomNum.trim().toUpperCase();
         if (!roomNumPattern.test(trimmedRoomNum)) {
-            throw new Error('Invalid room number format.');
+            throw new Error('Invalid room number format. Room number must follow the format A101.');
         }
 
+        // Map roomType acronyms to full names
+        const roomTypeMapping = {
+            DQ: 'Deluxe Queen',
+            DT: 'Deluxe Twin',
+            PRMR: 'Premiere',
+            DORM: 'Dormitory',
+        };
         const fullRoomType = roomTypeMapping[roomType] || roomType;
+
         // Validate check-in and check-out dates
         const checkInDate = new Date(checkIn);
         const checkOutDate = new Date(checkOut);
+        if (isNaN(checkInDate) || isNaN(checkOutDate)) {
+            throw new Error('Invalid date format. Please provide valid check-in and check-out dates.');
+        }
         if (checkInDate >= checkOutDate) {
             throw new Error('Check-in date must be earlier than check-out date.');
+        }
+
+        // Validate adultPax and kidPax
+        const adultPaxNum = parseInt(adultPax, 10);
+        const kidPaxNum = parseInt(kidPax, 10);
+        if (isNaN(adultPaxNum) || adultPaxNum <= 0) {
+            throw new Error('Number of adults must be a positive integer.');
+        }
+        if (isNaN(kidPaxNum) || kidPaxNum < 0) {
+            throw new Error('Number of kids must be a non-negative integer.');
         }
 
         // Update booking in the database
@@ -550,13 +647,15 @@ server.post('/admin-edit-booking/:id', async (req, res) => {
             { _id: new ObjectId(req.params.id) },
             {
                 $set: {
-                    guestName: guestName.trim(),
+                    firstName: firstName.trim(),
+                    lastName: lastName.trim(),
+                    guestName: guestName,
                     roomType: fullRoomType,
                     roomNum: trimmedRoomNum,
                     checkIn: checkInDate,
                     checkOut: checkOutDate,
-                    adultPax: parseInt(adultPax, 10),
-                    kidPax: parseInt(kidPax, 10),
+                    adultPax: adultPaxNum,
+                    kidPax: kidPaxNum,
                 },
             }
         );
@@ -574,6 +673,7 @@ server.post('/admin-edit-booking/:id', async (req, res) => {
         await mongoClient.close();
     }
 });
+
 
 
 server.post('/admin-delete-booking/:id', async (req, res) => {
@@ -645,13 +745,22 @@ server.get('/admin-room-details', async (req, res) => {
         return res.redirect('/'); // Redirect to login if not authenticated
     }
 
+    const { roomNum } = req.query; // Get the roomNum query parameter from the search form
+
     try {
         await mongoClient.connect();
         const db = mongoClient.db(databaseName);
         const collection = db.collection(roomCollection);
 
-        // Fetch all rooms
-        const rooms = await collection.find({}).toArray(); // Get all room details
+        let query = {};
+
+        // If roomNum is provided, filter by it
+        if (roomNum) {
+            query.roomNum = { $regex: `^${roomNum.trim()}$`, $options: 'i' }; // Case-insensitive exact match
+        }
+
+        // Fetch rooms based on the query
+        const rooms = await collection.find(query).toArray();
 
         res.render('admin-room-details', {
             layout: 'index',
@@ -665,6 +774,46 @@ server.get('/admin-room-details', async (req, res) => {
         res.status(500).send('Error fetching room details');
     } finally {
         await mongoClient.close(); // Ensure the connection is closed
+    }
+});
+
+server.post('/admin-room-status/:id', async (req, res) => {
+    if (!req.session.isAuthenticated) {
+        return res.redirect('/');
+    }
+
+    try {
+        await mongoClient.connect();
+        const db = mongoClient.db(databaseName);
+        const roomsCollection = db.collection(roomCollection);
+
+        const roomId = req.params.id;
+        const newStatus = req.body.status;
+
+        // Validate the status input
+        const validStatuses = ["VR", "VC", "OCC", "DND", "RS"];
+        if (!validStatuses.includes(newStatus)) {
+            return res.status(400).send('Invalid status value');
+        }
+
+        // Update the room status in the database
+        const result = await roomsCollection.updateOne(
+            { _id: new ObjectId(roomId) },
+            { $set: { status: newStatus } }
+        );
+
+        if (result.modifiedCount === 1) {
+            console.log(`Room with ID ${roomId} updated to status ${newStatus}.`);
+        } else {
+            console.error(`Failed to update room with ID ${roomId}.`);
+        }
+
+        res.redirect('/admin-room-details'); // Redirect back to room details page
+    } catch (error) {
+        console.error('Error updating room status:', error);
+        res.status(500).send('Error updating room status');
+    } finally {
+        await mongoClient.close();
     }
 });
 
