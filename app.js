@@ -360,11 +360,15 @@ server.get('/admin-dashboard', async (req, res) => {
 
 
 // Admin Add Booking Route
-server.get('/admin/add-booking', (req, res) => {
+server.get('/admin-add-booking', (req, res) => {
     if (!req.session.isAuthenticated) {
         return res.redirect('/');
     }
-    res.render('admin-add-booking', { layout: 'index', title: 'Add Booking', username: req.session.username });
+    res.render('admin-add-booking', { 
+        layout: 'index', 
+        title: 'Add Booking', 
+        username: req.session.username,
+    });
 });
 
 // Handle Add Booking Form Submission
@@ -430,6 +434,7 @@ server.post('/admin-add-booking', async (req, res) => {
             checkOut, // Use combined checkOut value
             adultPax: adultPaxNum,
             kidPax: kidPaxNum,
+            status: "Pending",
         };
 
         const result = await bookingsCollection.insertOne(newBooking);

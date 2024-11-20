@@ -17,27 +17,19 @@
     <section>
         <!-- Booking Filter Form -->
         <form class="filter-form" method="GET" action="/admin-bookings">
-            <select id="filterOptions" name="filterOptions">
-                <option value="all">All</option>
-                <option value="arrivals">Arrivals</option>
-                <option value="departures">Departures</option>
-                <option value="in-house">In-House</option>
-            </select>
-
-
+        <select id="sort" name="sort" onchange="this.form.submit()">
+        <option value="new" {{#ifEquals sort "new"}}selected{{/ifEquals}}>New to Old</option>
+        <option value="old" {{#ifEquals sort "old"}}selected{{/ifEquals}}>Old to New</option>
+        </select>
 
             <label for="startDate">Start Date:</label>
             <input type="date" id="startDate" name="startDate" required>
 
             <label for="endDate">End Date:</label>
             <input type="date" id="endDate" name="endDate" required>
-
-            <div class="search-bar-container">
-                <input type="text" id="searchBar" name="searchBar" placeholder="Search bookings...">
-                <button type="submit">Filter</button>
-            </div>
+            <button type="submit">Filter</button>
             
-            <button type="button" class="create-booking">Create Booking</button>
+           <a href="/admin-add-booking" type="button" class="create-booking">Create Booking</a>
         </form>
 
         <!-- Booking List Table -->
@@ -96,6 +88,13 @@
                                 {{/ifEquals}}
                                
                             </td>
+                            <td>
+                            <a href="/admin-booking-details/{{this._id}}" class="btn btn-info">View Details</a>
+                            <a href="/admin-edit-booking/{{this._id}}" class="btn btn-warning">Edit</a>
+                            <form method="POST" action="/admin-delete-booking/{{this._id}}" style="display:inline;">
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this booking?')">Delete</button>
+                            </form>
+                        </td>
                         </tr>
                     {{/each}}
                 </tbody>
