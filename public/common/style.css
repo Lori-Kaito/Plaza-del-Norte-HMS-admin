@@ -708,5 +708,74 @@ td.action-links {
     transition: background-color 0.3s, color 0.3s;
   }
   
+
+/* 
+-----------------------
+-- BOOKING DETAILS--
+-----------------------
+*/
+
+.booking-details-page {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.booking-details-container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 800px;
+}
+
+.booking-details-header {
+    margin-bottom: 20px;
+}
+
+.booking-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.booking-details-item {
+    margin-bottom: 8px;
+}
+
+.booking-details-label {
+    font-weight: bold;
+}
+
+.booking-details-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.booking-details-button {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.booking-details-button:hover {
+    background-color: #0056b3;
+}
   
+.booking-details-special-requests {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    grid-column: span 2; /* Ensure full-width since  part of grid */
+}
+
   
