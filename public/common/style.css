@@ -779,3 +779,133 @@ td.action-links {
 }
 
   
+/* 
+-----------------------
+-- EDIT BOOKING --
+-----------------------
+*/
+
+/* Edit Booking Page */
+.edit-booking-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-height: 100vh; /* Use min-height to allow scrolling if content overflows */
+    background-color: #cecece;
+    overflow-y: auto; /* Ensure the entire page can scroll */
+    padding: 20px; /* Add padding to ensure content is visible on smaller screens */
+}
+
+/* Edit Booking Container */
+.edit-booking-container {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    max-width: 600px;
+    width: 100%;
+    overflow: hidden; /* Prevent accidental container overflow */
+}
+
+/* Header Styles */
+.edit-booking-header {
+    margin-bottom: 20px;
+    text-align: center;
+    color: #333;
+}
+
+/* Original Booking Information Styles */
+.edit-booking-info {
+    max-height: 200px; /* Adjust this value to your preference */
+    overflow-y: auto; /* Enables vertical scrolling */
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.edit-booking-info h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    text-align: center;
+    color: #555;
+}
+
+.edit-booking-info p {
+    margin: 5px 0;
+}
+
+.edit-booking-info strong {
+    color: #333;
+}
+
+/* Form Styles */
+.edit-booking-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Form Item Styles */
+.edit-booking-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.edit-booking-label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+.edit-booking-input,
+.edit-booking-select {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 14px;
+    width: 100%;
+}
+
+/* Button Styles */
+.edit-booking-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.edit-booking-button {
+    border: none;
+    border-radius: 5px;
+    color: white;
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+/* Save button styles */
+.edit-booking-button.save {
+    background-color: #007BFF;
+}
+
+.edit-booking-button.save:hover {
+    background-color: #0056b3;
+}
+
+/* Delete button styles */
+.edit-booking-button.delete {
+    background-color: #9c1e1e;
+}
+
+.edit-booking-button.delete:hover {
+    background-color: #5a6268;
+}
+
+/* Divider */
+.edit-booking-divider {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 20px 0;
+}
+
