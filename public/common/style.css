@@ -592,13 +592,25 @@ th {
 
 /* create booking button */
 .create-booking {
-    background-color: #009DFF; 
-    color: white;
-    border: none;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    gap: 10px; 
+    align-items: center;
     border-radius: 5px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    background-color: #009DFF; 
+    border: 1px solid #009DFF;
+    text-decoration: none;
+    color: white;
     cursor: pointer;
     margin-left: auto;
 }
+
+.create-booking:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+  }
 
 /* main section */
 section {
@@ -673,3 +685,28 @@ section {
   font-size: 16px;
   margin-right: 5px;
 }
+
+/* Action Links (View, Edit, Delete) */
+td.action-links {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    gap: 10px; 
+    align-items: center;
+  }
+  
+  /* General styling for links */
+  td.action-links a, .delete-link {
+    text-decoration: none;
+    background-color: #f0f0f0; 
+    border: 1px solid #cccccc; 
+    color: #666666; 
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  
+  
