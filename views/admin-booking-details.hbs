@@ -1,17 +1,40 @@
-{{!< layout index}}
-<h1>Booking Details</h1>
-
 {{#if booking}}
-    <h2>Booking ID: {{booking._id}}</h2>
-      <p><strong>Guest:</strong> {{#if booking.guestName}}{{booking.guestName}}{{else}}Guest details not found{{/if}}</p>
-    <p><strong>Guest ID:</strong> {{booking.guestID}}</p>
-    <p><strong>Adult Pax:</strong> {{booking.adultPax}}</p>
-    <p><strong>Kid Pax:</strong> {{booking.kidPax}}</p>
-    <p><strong>Room Type:</strong> {{booking.roomType}}</p>
-    <p><strong>Room Number:</strong> {{booking.roomNum}}</p>
-    <p><strong>Check In:</strong> {{booking.checkIn}}</p>
-    <p><strong>Check Out:</strong> {{booking.checkOut}}</p>
-    <p><strong>Special Requests:</strong> {{booking.specialRequests}}</p>
+<body>
+    <div class="booking-details-page">
+        <div class="booking-details-container">
+            <h1 class="booking-details-header">Bookings</h1>
+            <div class="booking-details-grid">
+                <div class="booking-details-item"><span class="booking-details-label">Booking ID:</span> {{booking._id}}</div>
+                <div class="booking-details-item"><span class="booking-details-label">Guest Name:</span> {{#if booking.guestName}}{{booking.guestName}}{{else}}Guest details not found{{/if}}</div>
+                <div class="booking-details-item"><span class="booking-details-label">Guest ID:</span> {{booking.guestID}}</div>
+                <div class="booking-details-item"><span class="booking-details-label">Room Type:</span> {{booking.roomType}}</div>
+                <div class="booking-details-item"><span class="booking-details-label">Check In:</span>
+                  <script>
+                      document.write(new Date(" {{booking.checkIn}}").toLocaleString('en-PH', { 
+                          weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', 
+                          hour: '2-digit', minute: '2-digit', hour12: true }));
+                  </script>
+                </div>
+                <div class="booking-details-item"><span class="booking-details-label">Adult pax:</span> {{booking.adultPax}}</div>
+                <div class="booking-details-item"><span class="booking-details-label">Check Out:</span>
+                  <script>
+                      document.write(new Date(" {{booking.checkOut}}").toLocaleString('en-PH', { 
+                          weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', 
+                          hour: '2-digit', minute: '2-digit', hour12: true }));
+                  </script>
+                </div>
+                <div class="booking-details-item"><span class="booking-details-label">Child pax:</span> {{booking.kidPax}}</div>
+              </div>
+              <div class="booking-details-special-requests">
+                <div class="booking-details-item"><span class="booking-details-label">Special Requests:</span> {{booking.specialRequests}}</div>
+              </div>
+            <div class="booking-details-buttons">
+                <a href="/admin-bookings/"><button class="booking-details-button">Back</button></a>
+                <a href="/admin-edit-booking/{{this._id}}"><button class="booking-details-button">Edit</button></a>
+            </div>
+        </div>
+    </div>
+</body>
 {{else}}
-    <p>No booking details found.</p>
+  <p>No booking details found.</p>
 {{/if}}
