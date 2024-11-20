@@ -793,8 +793,8 @@ td.action-links {
     width: 100%;
     min-height: 100vh; /* Use min-height to allow scrolling if content overflows */
     background-color: #cecece;
-    overflow-y: auto; /* Ensure the entire page can scroll */
-    padding: 20px; /* Add padding to ensure content is visible on smaller screens */
+    overflow-y: auto; 
+    padding: 20px; 
 }
 
 /* Edit Booking Container */
@@ -817,7 +817,7 @@ td.action-links {
 
 /* Original Booking Information Styles */
 .edit-booking-info {
-    max-height: 200px; /* Adjust this value to your preference */
+    max-height: 200px; 
     overflow-y: auto; /* Enables vertical scrolling */
     padding: 10px;
     border-radius: 5px;
@@ -842,13 +842,14 @@ td.action-links {
 .edit-booking-form {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    
 }
 
 /* Form Item Styles */
 .edit-booking-item {
     display: flex;
     flex-direction: column;
+    margin-bottom: 10px;
 }
 
 .edit-booking-label {
@@ -861,9 +862,10 @@ td.action-links {
 .edit-booking-select {
     border: 1px solid #ddd;
     border-radius: 5px;
-    padding: 10px;
     font-size: 14px;
     width: 100%;
+    padding: 8px 10px; 
+
 }
 
 /* Button Styles */
@@ -885,20 +887,20 @@ td.action-links {
 }
 
 /* Save button styles */
-.edit-booking-button.save {
+.save-button {
     background-color: #007BFF;
 }
 
-.edit-booking-button.save:hover {
+.save-button:hover {
     background-color: #0056b3;
 }
 
 /* Delete button styles */
-.edit-booking-button.delete {
+.delete-button {
     background-color: #9c1e1e;
 }
 
-.edit-booking-button.delete:hover {
+.delete-button:hover {
     background-color: #5a6268;
 }
 
