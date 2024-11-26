@@ -152,7 +152,6 @@ server.post('/admin/register', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
         const newAdmin = {
-            email: email,
             username: username,
             password: hashedPassword, // Store the hashed password
         };
@@ -165,38 +164,6 @@ server.post('/admin/register', async (req, res) => {
         res.status(500).send('Error during registration');
     } finally {
         await mongoClient.close(); // Ensure the connection is closed
-    }
-});
-
-// Forgot Password Route
-server.get('/admin/forgot-password', (req, res) => {
-    res.render('admin-forgot-password', { layout: 'index', title: 'Forgot Password' });
-});
-
-// Handle Forgot Password
-server.post('/admin/forgot-password', async (req, res) => {
-    const { email } = req.body;
-
-    try {
-        await mongoClient.connect();
-        const db = mongoClient.db(databaseName);
-        const collection = db.collection(adminCollection);
-
-        const admin = await collection.findOne({ email: email });
-
-        if (!admin) {
-            res.render('admin-forgot-password', { layout: 'index', title: 'Forgot Password', error: 'Email not found' });
-            return;
-        }
-
-        // In production, send a reset link or instructions to the email
-        res.send('Instructions to reset your password have been sent to your email.');
-
-    } catch (error) {
-        console.error('Error handling forgot password:', error);
-        res.status(500).send('Error processing request');
-    } finally {
-        await mongoClient.close();
     }
 });
 
