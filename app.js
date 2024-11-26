@@ -41,9 +41,6 @@ server.engine('hbs', handlebars.engine({
     }
 }));
 
-
-console.log('Salt Rounds:', saltRounds);
-
 // Define the isAuthenticated middleware
 function isAuthenticated(req, res, next) {
     if (req.session.isAuthenticated) {
