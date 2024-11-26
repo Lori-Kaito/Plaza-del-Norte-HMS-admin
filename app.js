@@ -1,20 +1,12 @@
-// Install Command:
-// npm init -y
-// npm i express express-handlebars body-parser mongodb
-// npm install express-session bcrypt handlebars-helpers
+//Install Command:
+//npm install
 
-// Run command:
-// node app.js
+//Run command:
+//npm start
+require('dotenv').config();
 
-const express = require('express');
-const server = express();
-const bodyParser = require('body-parser');
-const handlebars = require('express-handlebars');
-const session = require('express-session');
-const bcrypt = require('bcrypt');
-const saltRounds = 10;
+const { express, server, bodyParser, handlebars, bcrypt, saltRounds, helpers, session } = require('./dependencies.js');
 const { MongoClient, ObjectId, ServerApiVersion } = require('mongodb');
-const helpers = require('handlebars-helpers');
 
 // Middleware setup
 server.use(express.json());
@@ -22,7 +14,7 @@ server.use(express.urlencoded({ extended: true }));
 
 // Setup sessions
 server.use(session({
-    secret: 'your_secret_key', // Replace with a strong secret key
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false } // Set to true if using HTTPS
@@ -49,6 +41,9 @@ server.engine('hbs', handlebars.engine({
     }
 }));
 
+
+console.log('Salt Rounds:', saltRounds);
+
 // Define the isAuthenticated middleware
 function isAuthenticated(req, res, next) {
     if (req.session.isAuthenticated) {
@@ -62,7 +57,7 @@ function isAuthenticated(req, res, next) {
 server.use(express.static('public'));
 
 // MongoDB setup
-const databaseURL = "mongodb+srv://shanleyvalenzuela24:DtcDdw13cG8fiQeb@plazadelnorte.jiyev.mongodb.net/?retryWrites=true&w=majority&appName=PlazadelNorte";
+const databaseURL = process.env.DATABASE_URL; 
 const mongoClient = new MongoClient(databaseURL, {
     serverApi: {
         version: ServerApiVersion.v1,
@@ -838,7 +833,7 @@ server.get('/admin-logout', (req, res) => {
 });
 
 // Start server
-const PORT = 3001; // Admin server on port 3001
+const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
     console.log(`Admin server is running on port ${PORT}`);
 });

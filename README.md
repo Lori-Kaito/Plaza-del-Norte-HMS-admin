@@ -1,4 +1,5 @@
 # Plaza-del-Norte-HMS-admin
+Admin view of Plaza del Norte's Hotel Management System
 
 Username: admin
 
@@ -6,11 +7,7 @@ Password: 1234
 
 or pwede rin kayo mag register
 
-Install Command: npm init -y  
-
-npm i express express-handlebars body-parser mongodb 
-
-npm install express-session bcrypt handlebars-helpers
+Install Command: npm install
 
 Run command:
 node app.js

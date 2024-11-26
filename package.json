@@ -1,0 +1,23 @@
+{
+  "name": "plaza-del-norte-hms-admin-2",
+  "version": "1.0.0",
+  "description": "Username: admin",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.3",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "express-handlebars": "^8.0.1",
+    "express-session": "^1.18.1",
+    "handlebars-helpers": "^0.10.0",
+    "mongodb": "^6.11.0"
+  }
+}
