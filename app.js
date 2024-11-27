@@ -15,6 +15,7 @@ server.use(express.urlencoded({ extended: true }));
 // Setup sessions
 server.use(session({
     secret: process.env.SESSION_SECRET,
+    name: 'admin.sid',
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false } // Set to true if using HTTPS
@@ -204,9 +205,7 @@ server.get('/admin/payments', async (req, res) => {
         await mongoClient.close();
     }
 });
-
-// Update Payment Status
-server.post('/admin-update-payment-status/:id', async (req, res) => {
+server.post('/admin-update-payment-status/:id/:bookingID', async (req, res) => {
     if (!req.session.isAuthenticated) {
       return res.redirect('/');
     }
@@ -215,25 +214,50 @@ server.post('/admin-update-payment-status/:id', async (req, res) => {
       await mongoClient.connect();
       const db = mongoClient.db(databaseName);
       const paymentsCollection = db.collection('paymentsCollection');
+      const bookingsCollection = db.collection(reservationCollection);
   
       const paymentId = req.params.id;
+      const bookingId = req.params.bookingID;
       const { status } = req.body;
   
       if (!status) {
         throw new Error('Payment status is required.');
       }
   
-      const updateResult = await paymentsCollection.updateOne(
+      // Find the payment record by ID
+      const paymentRecord = await paymentsCollection.findOne({ _id: new ObjectId(paymentId) });
+      if (!paymentRecord) {
+        throw new Error(`Payment record with ID ${paymentId} not found.`);
+      }
+  
+      // Update the payment record's status
+      const updatePaymentResult = await paymentsCollection.updateOne(
         { _id: new ObjectId(paymentId) },
-        { $set: { status } }
+        { $set: { status, paidDate: new Date() } }
       );
   
-      if (updateResult.modifiedCount === 1) {
-        console.log(`Payment with ID ${paymentId} updated successfully.`);
-        res.redirect('/admin-payments');
-      } else {
-        throw new Error('Failed to update payment status.');
+      if (updatePaymentResult.modifiedCount !== 1) {
+        throw new Error(`Failed to update payment record with ID ${paymentId}.`);
       }
+  
+      console.log(`Payment with ID ${paymentId} updated successfully to status: ${status}`);
+  
+      // Determine the new booking status based on payment status
+      const bookingStatus = status === 'paid' ? 'pending' : 'pending payment';
+  
+      // Update the booking's status
+      const updateBookingResult = await bookingsCollection.updateOne(
+        { _id: new ObjectId(bookingId) },
+        { $set: { status: bookingStatus, payment: status } }
+      );
+  
+      if (updateBookingResult.modifiedCount !== 1) {
+        throw new Error(`Failed to update booking record with ID ${bookingId}.`);
+      }
+  
+      console.log(`Booking with ID ${bookingId} updated successfully to status: ${bookingStatus}`);
+  
+      res.redirect('/admin-payments');
     } catch (error) {
       console.error('Error updating payment status:', error);
       res.status(400).send('Error updating payment status: ' + error.message);
@@ -495,7 +519,7 @@ server.post('/admin-add-booking', async (req, res) => {
             checkIn, 
             checkOut, 
             specialRequest: specialRequest.trim() || 'None', // Default to 'None' if empty
-            status: "Pending",
+            status: "pending",
         };
 
         const result = await bookingsCollection.insertOne(newBooking);
@@ -587,7 +611,7 @@ server.post('/admin-done-booking/:id', async (req, res) => {
         // Update the booking status to "Done"
         const result = await bookingsCollection.updateOne(
             { _id: new ObjectId(req.params.id) },
-            { $set: { status: "Done" } }
+            { $set: { status: "done" } }
         );
 
         if (result.modifiedCount === 1) {
