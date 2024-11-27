@@ -197,6 +197,43 @@ server.get('/admin/payments', async (req, res) => {
     }
 });
 
+// Update Payment Status
+server.post('/admin-update-payment-status/:id', async (req, res) => {
+    if (!req.session.isAuthenticated) {
+      return res.redirect('/');
+    }
+  
+    try {
+      await mongoClient.connect();
+      const db = mongoClient.db(databaseName);
+      const paymentsCollection = db.collection('paymentsCollection');
+  
+      const paymentId = req.params.id;
+      const { status } = req.body;
+  
+      if (!status) {
+        throw new Error('Payment status is required.');
+      }
+  
+      const updateResult = await paymentsCollection.updateOne(
+        { _id: new ObjectId(paymentId) },
+        { $set: { status } }
+      );
+  
+      if (updateResult.modifiedCount === 1) {
+        console.log(`Payment with ID ${paymentId} updated successfully.`);
+        res.redirect('/admin-payments');
+      } else {
+        throw new Error('Failed to update payment status.');
+      }
+    } catch (error) {
+      console.error('Error updating payment status:', error);
+      res.status(400).send('Error updating payment status: ' + error.message);
+    } finally {
+      await mongoClient.close();
+    }
+  });
+  
 // Admin Dashboard Route
 server.get('/admin-dashboard', async (req, res) => {
     if (!req.session.isAuthenticated) {
