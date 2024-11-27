@@ -88,7 +88,7 @@ const paymentsCollection = "paymentsCollection"; // Collection for payments
 
 // Admin Login Route
 server.get('/', (req, res) => {
-    res.render('admin-login', { layout: 'index', title: 'Admin Login' });
+    res.render('admin-login', { layout: 'index', title: 'Admin Login', isAuthenticated: req.session.isAuthenticated  });
 });
 
 // Handle login attempts
