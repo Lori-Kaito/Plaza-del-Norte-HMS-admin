@@ -135,7 +135,7 @@ server.get('/admin/register', (req, res) => {
 
 // Handle registration of new admin with email
 server.post('/admin/register', async (req, res) => {
-    const { email, username, password } = req.body;
+    const { username, password } = req.body;
 
     try {
         await mongoClient.connect();
@@ -205,6 +205,8 @@ server.get('/admin/payments', async (req, res) => {
         await mongoClient.close();
     }
 });
+
+// updating payment status
 server.post('/admin-update-payment-status/:id/:bookingID', async (req, res) => {
     if (!req.session.isAuthenticated) {
       return res.redirect('/');
@@ -327,8 +329,8 @@ server.get('/admin-dashboard', async (req, res) => {
         const lastDayOfCurrentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
         const currentMonthRevenue = await db.collection(paymentsCollection).aggregate([
             { $match: { 
-                paymentDate: { $gte: firstDayOfCurrentMonth, $lte: lastDayOfCurrentMonth },
-                status: "Paid" // Only include paid payments
+                paidDate: { $gte: firstDayOfCurrentMonth, $lte: lastDayOfCurrentMonth },
+                status: "paid" // Only include paid payments
             } },
             { $group: { _id: null, total: { $sum: "$amount" } } }
         ]).toArray();
@@ -339,8 +341,8 @@ server.get('/admin-dashboard', async (req, res) => {
         const lastDayOfLastMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 0);
         const lastMonthRevenue = await db.collection(paymentsCollection).aggregate([
             { $match: { 
-                paymentDate: { $gte: firstDayOfLastMonth, $lte: lastDayOfLastMonth },
-                status: "Paid" // Only include paid payments
+                paidDate: { $gte: firstDayOfLastMonth, $lte: lastDayOfLastMonth },
+                status: "paid" // Only include paid payments
             } },
             { $group: { _id: null, total: { $sum: "$amount" } } }
         ]).toArray();
@@ -353,8 +355,8 @@ server.get('/admin-dashboard', async (req, res) => {
         const lastDayOfYear = new Date(currentMonth.getFullYear(), 11, 31);
         const yearRevenue = await db.collection(paymentsCollection).aggregate([
             { $match: { 
-                paymentDate: { $gte: firstDayOfYear, $lte: lastDayOfYear },
-                status: "Paid" // Only include paid payments
+                paidDate: { $gte: firstDayOfYear, $lte: lastDayOfYear },
+                status: "paid" // Only include paid payments
             } },
             { $group: { _id: null, total: { $sum: "$amount" } } }
         ]).toArray();
