@@ -36,16 +36,18 @@
                     </div>  
 
         <div class="card revenue">
-                <div class="title-header">
-                    <h2>REVENUE COMPARISON</h2>
-                    <a href="/admin-payments" class="view-all-link">View All</a> 
-                </div>
-            <div>
-                <p>Current Month Total Revenue: &#8369; {{currentMonthTotal}}</p>
-                <p>Last Month Total Revenue: &#8369; {{lastMonthTotal}}</p>
-                <p>Difference: &#8369; {{revenueDifference}}</p>
+            <div class="title-header">
+                <h2>REVENUE COMPARISON</h2>
+                <a href="/admin-payments" class="view-all-link">View All</a>
             </div>
+            <div style="display: none">
+                <p>Current Month Total Revenue: &#8369; <span id="currentMonthTotal">{{currentMonthTotal}}</span></p>
+                <p>Last Month Total Revenue: &#8369; <span id="lastMonthTotal">{{lastMonthTotal}}</span></p>
+                <p>Difference: &#8369; <span id="revenueDifference">{{revenueDifference}}</span></p>
+            </div>
+            <canvas id="revenueChart" width="400" height="200"></canvas>
         </div>
+
 
     <!-- Yearly Revenue Section -->
         <div class="card yearly">
@@ -103,3 +105,66 @@
         </div>
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Fetch data from the HTML
+  const currentMonthTotal = parseFloat(document.getElementById('currentMonthTotal').textContent.replace(/[^0-9.]/g, ''));
+  const lastMonthTotal = parseFloat(document.getElementById('lastMonthTotal').textContent.replace(/[^0-9.]/g, ''));
+
+  // Create the bar chart
+  const ctx = document.getElementById('revenueChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Current Month', 'Last Month'],
+      datasets: [{
+        label: 'Revenue',
+        data: [currentMonthTotal, lastMonthTotal],
+        backgroundColor: ['#4caf50', '#2196f3'],
+        borderColor: ['#388e3c', '#1976d2'],
+        borderWidth: 1,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        datalabels: {
+          display: true,
+          color: 'black', // Label color
+          font: {
+            weight: 'bold',
+          },
+          anchor: 'end',
+          align: 'top',
+          formatter: function (value) {
+            return `₱${value.toLocaleString()}`; // Format the value as currency
+          }
+        },
+        legend: {
+          display: false, // Hide the legend if unnecessary
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Revenue (₱)'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Time Period'
+          }
+        }
+      }
+    },
+    plugins: [ChartDataLabels], // Enable the datalabels plugin
+  });
+});
+
+</script>
