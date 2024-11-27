@@ -71,6 +71,14 @@ const roomTypeMapping = {
     DORM: "Dormitory",
 };
 
+// Base Prices of Rooms
+const roomPrices = [
+    { roomType: "Deluxe Queen", basePrice: 4800 },
+    { roomType: "Deluxe Twin", basePrice: 5700 },
+    { roomType: "Premiere", basePrice: 10000 },
+    { roomType: "Dormitory", basePrice: 7200 }
+  ];
+
 const databaseName = "hotelDB";
 const adminCollection = "adminCollection";
 const reservationCollection = "reservationCollection";
@@ -378,6 +386,7 @@ server.post('/admin-add-booking', async (req, res) => {
         const db = mongoClient.db(databaseName);
         const bookingsCollection = db.collection(reservationCollection);
         const roomsCollection = db.collection(roomCollection); // Access roomCollection
+        const guestCollection = db.collection("guestCollection");
 
         // Extract data from the form submission
         const { 
@@ -406,19 +415,6 @@ server.post('/admin-add-booking', async (req, res) => {
             throw new Error('Check-In date and time must be before Check-Out date and time.');
         }
 
-        const trimmedRoomNum = roomNum.trim().toUpperCase(); // Ensure no leading/trailing spaces and convert to uppercase
-        // Validate roomNum format (e.g., A101, B203)
-        const roomNumPattern = /^[A-Z][0-9]{3}$/;
-        if (!roomNumPattern.test(trimmedRoomNum)) {
-            throw new Error('Invalid room number format. Room number must consist of one letter followed by three digits (e.g., A101).');
-        }
-
-        // Check if roomNum exists in roomCollection
-        const roomExists = await roomsCollection.findOne({ roomNum: trimmedRoomNum });
-        if (!roomExists) {
-            throw new Error(`Room number ${roomNum} does not exist in the database.`);
-        }
-
         // Validate adultPax and kidPax
         const adultPaxNum = parseInt(adultPax, 10);
         const kidPaxNum = parseInt(kidPax, 10);
@@ -431,17 +427,73 @@ server.post('/admin-add-booking', async (req, res) => {
             throw new Error('Invalid number of kids.');
         }
 
+        const oneDay = 24 * 60 * 60 * 1000; // Milliseconds in one day
+        const numberOfNights = Math.round((checkOutDate - checkInDate) / oneDay); // Calculate nights
+    
+        if (numberOfNights <= 0) {
+          throw new Error('Check-out date must be later than check-in date.');
+        }
+        // Ensure roomType and roomNum are arrays
+        const roomTypes = Array.isArray(roomType) ? roomType : [roomType];
+        const roomNumbers = Array.isArray(roomNum) ? roomNum : [roomNum];
+
+        if (roomTypes.length !== roomNumbers.length) {
+            throw new Error('The number of room types and room numbers must match.');
+        }
+
+        // Initialize totalPrice and roomDetails array
+        let totalPrice = 0;
+        const roomDetails = await Promise.all(
+            roomTypes.map(async (type, index) => {
+              const trimmedRoomNum = roomNumbers[index].trim().toUpperCase(); // Ensure consistency in room numbers
+          
+              // Check if roomNum exists in roomCollection
+              const roomExists = await roomsCollection.findOne({ roomNum: trimmedRoomNum });
+              if (!roomExists) {
+                throw new Error(`Room number ${trimmedRoomNum} does not exist in the database.`);
+              }
+          
+              // Validate roomType and calculate price
+              const roomInfo = roomPrices.find((room) => room.roomType === type);
+              if (!roomInfo) {
+                throw new Error(`Invalid room type: ${type}`);
+              }
+          
+              // Calculate price for the room
+              const roomTotal = roomInfo.basePrice * numberOfNights;
+              totalPrice += roomTotal;
+          
+              // Add room details
+              return {
+                roomType: roomInfo.roomType,
+                roomNum: trimmedRoomNum,
+                basePrice: roomInfo.basePrice,
+                nights: numberOfNights,
+                total: roomTotal,
+              };
+            })
+          );
+
+        console.log('Total Price:', totalPrice);
+        console.log('Room Details:', roomDetails);
+
         // Insert the booking into the database
+        const guestResult = await guestCollection.insertOne({
+              firstName: firstName,
+              lastName: lastName,
+              bookedOn: new Date()
+          });
+        console.log("New guest added to collection: " + guestResult.insertedId);
+        guestID = guestResult.insertedId;
         const newBooking = {
-            guestName,
+            guestID,
             firstName: firstName.trim(),
             lastName: lastName.trim(),
-            roomType,
-            roomNum: roomNum.trim(),
-            checkIn, // Use combined checkIn value
-            checkOut, // Use combined checkOut value
+            roomDetails,
             adultPax: adultPaxNum,
             kidPax: kidPaxNum,
+            checkIn, 
+            checkOut, 
             specialRequest: specialRequest.trim() || 'None', // Default to 'None' if empty
             status: "Pending",
         };
@@ -461,6 +513,7 @@ server.post('/admin-add-booking', async (req, res) => {
         await mongoClient.close();
     }
 });
+
 
 // Bookings Route
 server.get('/admin-bookings', async (req, res) => {

@@ -11,27 +11,26 @@
                 <input class="edit-booking-input" type="text" id="lastName" name="lastName" required placeholder="Last">
             </div><br>
         </div>
-        <!-- Room Num -->
-        <div class="edit-booking-item">
-          <label class="edit-booking-label" for="roomNum">Room Number:</label>
-          <input
-              class="edit-booking-input"
-              type="text"
-              id="roomNum"
-              name="roomNum"
-              placeholder="Enter room number (e.g., A101)"
-              required>
-        </div>
         <!-- Room Type -->
-        <div class="edit-booking-item">
-          <label class="edit-booking-label" for="roomType">Room Type:</label>
-          <select class="edit-booking-select" id="roomType" name="roomType" required>
+        <div class="edit-booking-item" id = "roomTypes">
+          <label class="edit-booking-label" for="roomType">Room Type/s & Number:</label>
+          <div class="room-type-row">
+          <select class="edit-booking-select" id="roomType" name="roomType[]" required>
               <option value="Deluxe Queen">Deluxe Queen</option>
               <option value="Deluxe Twin">Deluxe Twin</option>
               <option value="Premiere">Premiere</option>
               <option value="Dormitory">Dormitory</option>
-          </select><br><br>
-        </div>
+          </select>
+          <div style="width: 10px">   </div>
+          <input
+              class="edit-booking-input"
+              type="text"
+              id="roomNum"
+              name="roomNum[]"
+              placeholder="Enter room number (e.g., A101)"
+              required>
+          <button type="button" class="small-btn" id="addRoomBtn">+</button></div>
+        </div><br><br>
         <!-- Adult Pax -->
         <div class="edit-booking-item"> 
           <label class="edit-booking-label" for="adultPax">Number of Adults:</label>
@@ -70,3 +69,36 @@
     </form>
   </div>
 </div>
+<script>
+  const addRoomBtn = document.getElementById('addRoomBtn');
+  const roomTypes = document.getElementById('roomTypes');
+
+  addRoomBtn.addEventListener('click', () => {
+    const newRow = document.createElement('div');
+    newRow.className = 'room-type-row';
+    newRow.innerHTML = `
+      <select name="roomType[]" class="edit-booking-select">
+        <option value="Deluxe Queen">Deluxe Queen</option>
+        <option value="Deluxe Twin">Deluxe Twin</option>
+        <option value="Premiere">Premiere</option>
+        <option value="Dormitory">Dormitory</option>
+      </select>
+          <div style="width: 10px">   </div>
+          <input
+              class="edit-booking-input"
+              type="text"
+              id="roomNum"
+              name="roomNum[]"
+              placeholder="Enter room number (e.g., A101)"
+              required>
+      <button type="button" id="removeRoomBtn" class="small-btn">-</button>
+    `;
+    roomTypes.appendChild(newRow);
+
+    // Add event listener to the remove button
+    const removeRoomBtn = newRow.querySelector('#removeRoomBtn');
+    removeRoomBtn.addEventListener('click', () => {
+      newRow.remove();
+    });
+  });
+</script>
