@@ -71,6 +71,14 @@ const roomTypeMapping = {
     DORM: "Dormitory",
 };
 
+// Base Prices of Rooms
+const roomPrices = [
+    { roomType: "Deluxe Queen", basePrice: 4800 },
+    { roomType: "Deluxe Twin", basePrice: 5700 },
+    { roomType: "Premiere", basePrice: 10000 },
+    { roomType: "Dormitory", basePrice: 7200 }
+  ];
+
 const databaseName = "hotelDB";
 const adminCollection = "adminCollection";
 const reservationCollection = "reservationCollection";
