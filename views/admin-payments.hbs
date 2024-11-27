@@ -11,9 +11,8 @@
       <form method="GET" action="/admin-payments">
     <label for="paymentStatus">Filter by Payment Status:</label>
     <select id="paymentStatus" name="paymentStatus">
-        <option value="All" {{#if (eq paymentStatus "All")}}selected{{/if}}>All</option>
-        <option value="Unpaid" {{#if (eq paymentStatus "Unpaid")}}selected{{/if}}>Unpaid</option>
-         <option value="Paid" {{#if (eq paymentStatus "Paid")}}selected{{/if}}>Paid</option>
+        <option value="Unpaid" {{#if (eq paymentStatus "unpaid")}}selected{{/if}}>unpaid</option>
+        <option value="Paid" {{#if (eq paymentStatus "paid")}}selected{{/if}}>paid</option>
     </select>
     <button type="submit">Filter</button>
 </form>
@@ -22,6 +21,7 @@
         <thead>
           <tr>
             <th>Payment ID</th>
+            <th>Booking ID</th>
             <th>Guest ID</th>
             <th>Amount</th>
             <th>Status</th>
@@ -32,20 +32,24 @@
         <tbody>
           {{#each payments}}
             <tr>
-              <td>{{this.paymentID}}</td>
-              <th>{{this.guestID}}</th>
+              <td>{{this._id}}</td>
+              <td>{{this.bookingID}}</td>
+              <td>{{this.guestID}}</td>
               <td>{{this.amount}}</td>
               <td>
-                <form method="POST" action="/admin-update-payment-status/{{_id}}">
+                <form method="POST" action="/admin-update-payment-status/{{_id}}/{{bookingID}}">
                 <select name="status" onchange="this.form.submit()">
-                    <option value="Paid" {{#ifEquals status 'Paid'}}selected{{/ifEquals}}>Paid</option>
-                    <option value="Unpaid" {{#ifEquals status 'Unpaid'}}selected{{/ifEquals}}>Unpaid</option>
+                    <option value="paid" {{#ifEquals status 'paid'}}selected{{/ifEquals}}>Paid</option>
+                    <option value="unpaid" {{#ifEquals status 'unpaid'}}selected{{/ifEquals}}>Unpaid</option>
                 </select>
                  </form>
               </td>
               <td>
               <script>
-                  document.write(new Date("{{this.paymentDate}}").toLocaleString('en-PH', { 
+                if(new Date("{{this.paidDate}}").toLocaleString() === "Invalid Date"){
+                  document.write("-");
+                } else{
+                  document.write(new Date("{{this.paidDate}}").toLocaleString('en-PH', { 
                       weekday: 'short', 
                       year: 'numeric', 
                       month: 'short', 
@@ -54,6 +58,7 @@
                       minute: '2-digit', 
                       hour12: true 
                   }));
+                }
               </script>
               </td>
             </tr>
