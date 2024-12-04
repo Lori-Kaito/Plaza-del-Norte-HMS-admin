@@ -14,7 +14,7 @@ or pwede rin kayo mag register
 ### Install command:
     npm install
 
-### To run, type the following in the terminal:
+### To run, type one of the following in the terminal:
     node app.js
 ### or
     npm start
