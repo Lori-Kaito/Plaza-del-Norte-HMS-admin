@@ -1,10 +1,10 @@
 # Plaza-del-Norte-HMS-admin
 Admin view of Plaza del Norte's Hotel Management System
 
-## Username: 
+### Username: 
     admin
 
-## Password:
+### Password:
     1234
 
 or pwede rin kayo mag register
@@ -16,11 +16,11 @@ or pwede rin kayo mag register
 
 ### To run, type the following in the terminal:
     node app.js
-### or
+#### or
     npm start
 
 ### Local URL:
     http://localhost:3001/
 
-## Website Link
+### Website Link
     https://plaza-del-norte-hms-admin.onrender.com
