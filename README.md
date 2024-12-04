@@ -16,7 +16,7 @@ or pwede rin kayo mag register
 
 ### To run, type the following in the terminal:
     node app.js
-#### or
+### or
     npm start
 
 ### Local URL:
