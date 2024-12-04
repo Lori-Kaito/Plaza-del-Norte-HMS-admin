@@ -7,10 +7,18 @@ Password: 1234
 
 or pwede rin kayo mag register
 
-Install Command: npm install
+## Local Set-up
 
-Run command:
-node app.js
+### Install command:
+    npm install
 
-Local URL:
+### To run, type the following in the terminal:
+    node app.js
+or
+    npm start
+
+### Local URL:
 http://localhost:3001/
+
+## Website Link
+    https://plaza-del-norte-hms-admin.onrender.com
